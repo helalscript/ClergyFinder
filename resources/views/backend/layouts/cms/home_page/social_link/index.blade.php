@@ -34,7 +34,7 @@
                         <input type="text" class="form-control" placeholder="Search here" id="customSearchBox">
                         <i class="material-symbols-outlined position-absolute top-50 start-0 translate-middle-y">search</i>
                     </span>
-                    <a href="{{ route('cms.home_page.social_link.create') }}"
+                    <a href="{{ route('social_link.create') }}"
                         class="btn btn-outline-primary py-1 px-2 px-sm-4 fs-14 fw-medium rounded-3 hover-bg">
                         <span class="py-sm-1 d-block">
                             <i class="ri-add-line d-none d-sm-inline-block"></i>
@@ -129,7 +129,7 @@
                 dom: "<'row justify-content-between table-topbar'<'col-md-2 col-sm-4 px-0'l>>tir",
 
                 ajax: {
-                    url: "{{ route('cms.home_page.social_link.index') }}",
+                    url: "{{ route('social_link.index') }}",
                     type: "get"
                 },
                 columns: [{
@@ -284,14 +284,14 @@
         // Use the status change alert
         function changeStatus(event, id) {
             event.preventDefault();
-            let statusUrl = '{{ route('cms.home_page.social_link.status', ':id') }}';
+            let statusUrl = '{{ route('social_link.status', ':id') }}';
             showStatusChangeAlert(id, statusUrl);
         }
 
         // Use the delete confirm alert
         function deleteRecord(event, id) {
             event.preventDefault();
-            let deleteUrl = '{{ route('cms.home_page.social_link.destroy', ':id') }}';
+            let deleteUrl = '{{ route('social_link.destroy', ':id') }}';
             showDeleteConfirm(id, deleteUrl);
         }
     </script>

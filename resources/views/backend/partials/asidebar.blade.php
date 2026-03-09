@@ -57,8 +57,8 @@ $systemSetting = App\Models\SystemSetting::first();
                 </a>
             </li>
             <li class="menu-item open">
-                <a href="{{ route('cms.home_page.social_link.index') }}"
-                    class="menu-link {{ request()->routeIs('cms.home_page.social_link.*') ? 'active' : '' }}">
+                <a href="{{ route('social_link.index') }}"
+                    class="menu-link {{ request()->routeIs('social_link.*') ? 'active' : '' }}">
                     <span class="material-symbols-outlined menu-icon">link</span>
                     <span class="title">Social Link</span>
                 </a>

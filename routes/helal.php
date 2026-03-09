@@ -55,8 +55,8 @@ Route::middleware(['auth:web', 'role_check'])->prefix('admin')->group(function (
     Route::post('/faqs/status/{id}', [FaqController::class, 'status'])->name('faqs.status');
 
     // Route Social link
-    Route::resource('/home-page/social-link/index', HomePageSocialLinkContainerController::class)->names('cms.home_page.social_link')->except('show');
-    Route::post('/home-page/social-link/status/{id}', [HomePageSocialLinkContainerController::class, 'status'])->name('cms.home_page.social_link.status');
+    Route::resource('/social-link/index', HomePageSocialLinkContainerController::class)->names('social_link')->except('show');
+    Route::post('/social-link/status/{id}', [HomePageSocialLinkContainerController::class, 'status'])->name('social_link.status');
 
     Route::resource('/blogs', BlogController::class)->names('blogs');
     Route::post('/blogs/status/{id}', [BlogController::class, 'status'])->name('blogs.status');

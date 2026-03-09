@@ -43,7 +43,7 @@ class HomePageSocialLinkContainerController extends Controller
                 })
                 ->addColumn('action', function ($data) {
                     return '<div class="action-wrapper">
-                         <button class="ps-0 border-0 bg-transparent lh-1 position-relative top-2" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Edit" onclick="window.location.href=\'' . route('cms.home_page.social_link.edit', $data->id) . '\'">
+                         <button class="ps-0 border-0 bg-transparent lh-1 position-relative top-2" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Edit" onclick="window.location.href=\'' . route('social_link.edit', $data->id) . '\'">
                          <i class="material-symbols-outlined fs-16 text-body">edit</i>
                         </button>
                         <button class="ps-0 border-0 bg-transparent lh-1 position-relative top-2" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Delete" onclick="deleteRecord(event,' . $data->id . ')">
@@ -80,11 +80,11 @@ class HomePageSocialLinkContainerController extends Controller
             $validatedData['section'] = Section::SocialLinkContainer->value;
             CMS::Create($validatedData);
             flash()->success('Banner created successfully');
-            return redirect()->route('cms.home_page.social_link.index');
+            return redirect()->route('social_link.index');
         } catch (Exception $e) {
             Log::error("HomePageController::store" . $e->getMessage());
             flash()->error('Banner not created successfully');
-            return redirect()->route('cms.home_page.social_link.index');
+            return redirect()->route('social_link.index');
         }
     }
     /**
@@ -117,11 +117,11 @@ class HomePageSocialLinkContainerController extends Controller
 
             $data->update($validatedData);
             flash()->success('Banner Updated Successfully');
-            return redirect()->route('cms.home_page.social_link.index');
+            return redirect()->route('social_link.index');
         } catch (Exception $e) {
             Log::error("HomePageController::update" . $e->getMessage());
             flash()->error('Banner not Updated Successfully');
-            return redirect()->route('cms.home_page.social_link.index');
+            return redirect()->route('social_link.index');
         }
     }
 

@@ -30,7 +30,7 @@
                     <p class="fs-15">Update the details of the Social Link here.</p>
                 </div>
 
-                <form action="{{ route('cms.home_page.social_link.update', $data->id) }}" method="POST"
+                <form action="{{ route('social_link.update', $data->id) }}" method="POST"
                     enctype="multipart/form-data">
                     @csrf
                     @method('PUT') <!-- Include the method to specify this is an update request -->

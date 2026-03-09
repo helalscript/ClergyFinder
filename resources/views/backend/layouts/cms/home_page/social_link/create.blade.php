@@ -30,7 +30,7 @@
                     <p class="fs-15">Update Social Link and site details here.</p>
                 </div>
 
-                <form action="{{ route('cms.home_page.social_link.store') }}" method="POST" enctype="multipart/form-data">
+                <form action="{{ route('social_link.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="row">
                         <!-- Title Field -->
