@@ -43,15 +43,11 @@ class User extends Authenticatable implements JWTSubject
         'name',
         'first_name',
         'last_name',
-        'city',
-        'state',
-        'zip_code',
         'email',
         'phone',
         'avatar',
         'cover_photo',
         'gender',
-        'instagram_social_link',
         'password',
         'otp',
         'reset_password_token',
@@ -119,8 +115,8 @@ class User extends Authenticatable implements JWTSubject
     }
 
 
-    public function clientProfile()
+    public function clergy()
     {
-        return $this->hasOne(ClientProfile::class);
+        return $this->hasOne(Clergy::class);
     }
 }

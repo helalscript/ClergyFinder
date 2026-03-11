@@ -23,14 +23,22 @@ class DatabaseSeeder extends Seeder
         ]);
 
         User::factory()->create([
-            'name' => 'User',
-            'email' => 'user@user.com',
+            'name' => 'Clergy',
+            'email' => 'clergy@clergy.com',
             'password' => Hash::make('12345678'),
-            'role' => 'user',
+            'role' => 'clergy',
+        ]);
+        User::factory()->create([
+            'name' => 'Seeker',
+            'email' => 'seeker@seeker.com',
+            'password' => Hash::make('12345678'),
+            'role' => 'seeker',
         ]);
 
         $this->call(SystemSettingSeeder::class);
         $this->call(CMSSeeder::class);
         $this->call(DynamicPageSeeder::class);
+        $this->call(QuestionSeeder::class);
+        $this->call(FaqSeeder::class);
     }
 }

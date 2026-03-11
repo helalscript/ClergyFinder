@@ -35,13 +35,13 @@ $systemSetting = App\Models\SystemSetting::first();
             </li>
 
 
-            <li class="menu-item open">
+            {{-- <li class="menu-item open">
                 <a href="{{ route('admin_contact_us.index') }}"
                     class="menu-link {{ request()->routeIs('admin_contact_us.*') ? 'active' : '' }}">
                     <span class="material-symbols-outlined menu-icon">content_paste</span>
                     <span class="title">Contact Message</span>
                 </a>
-            </li>
+            </li> --}}
             <li class="menu-item open">
                 <a href="{{ route('faqs.index') }}"
                     class="menu-link {{ request()->routeIs('faqs.*') ? 'active' : '' }}">
@@ -49,7 +49,7 @@ $systemSetting = App\Models\SystemSetting::first();
                     <span class="title">FAQ's</span>
                 </a>
             </li>
-            <li class="menu-item open">
+            {{-- <li class="menu-item open">
                 <a href="{{ route('blogs.index') }}"
                     class="menu-link {{ request()->routeIs('blogs.*') ? 'active' : '' }}">
                     <span class="material-symbols-outlined menu-icon">book</span>
@@ -62,7 +62,7 @@ $systemSetting = App\Models\SystemSetting::first();
                     <span class="material-symbols-outlined menu-icon">link</span>
                     <span class="title">Social Link</span>
                 </a>
-            </li>
+            </li> --}}
             <!-- menu title -->
             <li class="menu-title small text-uppercase">
                 <span class="menu-title-text">OTHERS</span>

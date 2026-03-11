@@ -85,7 +85,7 @@ Route::group(['prefix' => 'cms/home-page'], function () {
 Route::group(['prefix' => 'cms/find-clergy-page'], function () {
     Route::get('/hero-section', [APIFindClergyPageController::class, 'getHeroSection']);
 });
-
+ 
 // route for how it work page
 Route::group(['prefix' => 'cms/how-it-work-page'], function () {
     Route::get('/hero-section', [APIHowItWorkPageController::class, 'getHeroSection']);
