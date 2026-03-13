@@ -4,14 +4,9 @@ namespace App\Http\Controllers\API\Auth;
 
 use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
-use App\Models\Contractor;
-use App\Models\License;
-use App\Models\NotificationSetting;
 use App\Models\User;
-use App\Notifications\UserRegistrationNotification;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller
@@ -23,7 +18,18 @@ class UserController extends Controller
      */
     public function me()
     {
-        return Helper::jsonResponse(true, 'User details fetched successfully', 200, auth('api')->user());
+       try {
+        $user = User::with('clergy:id,user_id,religion,bio,address,city,preferred_language,available_at,specialities,is_verified,is_live_session,is_prayer_request,status')
+        ->select('id', 'name', 'email', 'phone', 'avatar', 'cover_photo', 'gender', 'role')
+        ->find(auth('api')->id());
+        if (!$user) {
+            return Helper::jsonResponse(false, 'User not found', 404);
+        }
+        return Helper::jsonResponse(true, 'User details fetched successfully', 200, $user);
+       } catch (Exception $e) {
+        Log::error('UserController::me ' . $e->getMessage());
+        return Helper::jsonErrorResponse('something went wrong', 403);
+       }
     }
 
     /**

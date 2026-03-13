@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API\Auth;
 
 use App\Helpers\Helper;
 use App\Mail\OtpMail;
+use App\Models\Clergy;
 use App\Models\Contractor;
 use App\Models\License;
 use App\Notifications\UserRegistrationNotification;
@@ -34,11 +35,12 @@ class RegisterController extends Controller
             'phone' => 'nullable|numeric|max_digits:20|unique:users,phone,NULL,id,deleted_at,NULL',
             'email' => 'required|string|email|max:150|unique:users,email,NULL,id,deleted_at,NULL',
             'password' => 'required|string|min:6|confirmed',
+            'role' => 'required|in:clergy,seeker',
         ]);
 
         try {
-            // $otp = 1234; // For testing purposes, you can use a fixed OTP. In production, generate a random OTP.
-            $otp = rand(1000, 9999);
+            $otp = 1234; // For testing purposes, you can use a fixed OTP. In production, generate a random OTP.
+            // $otp = rand(1000, 9999);
             $otpExpiresAt = Carbon::now()->addMinutes(60); // 1 hour
 
             // Check for soft-deleted user
@@ -59,7 +61,7 @@ class RegisterController extends Controller
                     'email' => $request->input('email'),
                     'phone' => $request->input('phone') ?? null,
                     'password' => Hash::make($request->input('password')),
-                    'role' => 'user', // Default role
+                    'role' => $request->input('role'),
                     'otp' => $otp,
                     'otp_expires_at' => $otpExpiresAt,
                 ]);
@@ -70,10 +72,20 @@ class RegisterController extends Controller
                     'email' => $request->input('email'),
                     'phone' => $request->input('phone') ?? null,
                     'password' => Hash::make($request->input('password')),
-                    'role' => 'user', // Default role
+                    'role' => $request->input('role'),
                     'otp' => $otp,
                     'otp_expires_at' => $otpExpiresAt,
                 ];
+            }
+            if ($request->input('role') === 'clergy') {
+                $userData['clergy'] = [
+                    'user_id' => $user->id,
+                    'religion' => $request->input('religion'),
+                    'bio' => $request->input('bio'),
+                    'address' => $request->input('address'),
+                    'city' => $request->input('city'),
+                ];
+                Clergy::create($userData['clergy']);
             }
 
             DB::beginTransaction();
@@ -82,7 +94,7 @@ class RegisterController extends Controller
                 $user = User::create($userData);
             }
 
-            Mail::to($user->email)->send(new OtpMail($otp, $user, 'Verify Your Email Address'));
+            // Mail::to($user->email)->send(new OtpMail($otp, $user, 'Verify Your Email Address'));
 
             DB::commit();
             return Helper::jsonResponse(true, 'A verification email has been successfully sent to your email address. Please check your inbox to complete the verification.', 200);

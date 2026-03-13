@@ -15,9 +15,6 @@ return new class extends Migration {
             $table->string('name', 100)->nullable();
             $table->string('first_name', 100)->nullable();
             $table->string('last_name', 100)->nullable();
-            $table->string('city', 100)->nullable();
-            $table->string('state')->nullable();
-            $table->string('zip_code', 100)->nullable();
             $table->string('email', 100)->unique();
             $table->string('password');
             $table->string('phone')->nullable()->unique();
@@ -25,7 +22,7 @@ return new class extends Migration {
             $table->string('cover_photo')->nullable();
             $table->enum('gender', ['male', 'female', 'others'])->nullable();
             $table->timestamp('email_verified_at')->nullable();
-            $table->enum('role', ['user', 'admin'])->default('user');
+            $table->enum('role', ['seeker', 'clergy', 'admin'])->default('seeker');
             $table->string('otp')->nullable();
             $table->boolean('is_otp_verified')->default(false);
             $table->timestamp('otp_expires_at')->nullable();

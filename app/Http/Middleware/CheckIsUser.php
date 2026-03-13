@@ -18,7 +18,7 @@ class CheckIsUser
     public function handle(Request $request, Closure $next): Response
     {
         // Check if the user is authenticated
-        if (!Auth::check() || Auth::user()->role !== 'user') {
+        if (!Auth::check() || Auth::user()->role !== 'clergy' || Auth::user()->role !== 'seeker') {
             return Helper::jsonErrorResponse('Unauthorized action', 403);
         }
         return $next($request);
