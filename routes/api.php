@@ -12,6 +12,7 @@ use App\Http\Controllers\API\V1\CMS\FindClergyPageController as APIFindClergyPag
 use App\Http\Controllers\API\V1\CMS\OnboardingController;
 use App\Http\Controllers\API\V1\QuestionController;
 use App\Http\Controllers\API\V1\DashboardController;
+use App\Http\Controllers\API\V1\User\ClergyController;
 use App\Http\Controllers\API\V1\User\NotificationController;
 use App\Http\Controllers\API\V1\User\UserContactSupportController;
 use Illuminate\Support\Facades\Route;
@@ -43,8 +44,6 @@ Route::group(['middleware' => 'auth:api'], function ($router) {
 Route::group(['middleware' => ['auth:api', 'check_is_user']], function ($router) {
     // route for dashboard data
     Route::get('/dashboard-data/home', [DashboardController::class, 'dashboardData']);
-    Route::get('/dashboard-data/history', [DashboardController::class, 'HistoryPageData']);
-    Route::get('/dashboard-data/loan-management-tool', [DashboardController::class, 'LoanManagementToolPageData']);
     
 
     // Notifications route
@@ -54,18 +53,22 @@ Route::group(['middleware' => ['auth:api', 'check_is_user']], function ($router)
     Route::delete('/my-notifications-delete-all', [NotificationController::class, 'deleteAll']);
 });
 
+// route for clergy 
+Route::apiResource('clergy', ClergyController::class)->only(['index', 'show']);
+
 // witout auth
 Route::post('/contact-support-message/sent', [UserContactSupportController::class, 'store']);
 
 
 // --------- cms part --------------
-Route::get('/cms/social-link', [HomePageController::class, 'getSocialLinks']);
-Route::get('/cms/system-info', [HomePageController::class, 'getSystemInfo']);
-Route::get('/cms/onboarding-screens', [OnboardingController::class, 'getOnboardingScreens']);
+// Route::get('/social-link', [HomePageController::class, 'getSocialLinks']);
+Route::get('/system-info', [HomePageController::class, 'getSystemInfo']);
+// onboarding screens
+Route::get('/onboarding-screens', [OnboardingController::class, 'getOnboardingScreens']);
 
 // Question Page
 Route::get('/questions/{type}', [QuestionController::class, 'getQuestions'])->where('type', 'clergy|seeker');
-Route::post('/questions/user-answer', [QuestionController::class, 'saveUserAnswer']);
+Route::post('/questions/user-answer', [QuestionController::class, 'saveUserAnswer'])->middleware('auth:api');
 
 // dynamic page
 Route::get('dynamic-pages', [HomePageController::class, 'getDynamicPages']);

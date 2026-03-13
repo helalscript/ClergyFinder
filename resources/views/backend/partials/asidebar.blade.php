@@ -34,14 +34,28 @@ $systemSetting = App\Models\SystemSetting::first();
                 <span class="menu-title-text">APPS</span>
             </li>
 
-
-            {{-- <li class="menu-item open">
-                <a href="{{ route('admin_contact_us.index') }}"
-                    class="menu-link {{ request()->routeIs('admin_contact_us.*') ? 'active' : '' }}">
-                    <span class="material-symbols-outlined menu-icon">content_paste</span>
-                    <span class="title">Contact Message</span>
+            <!-- Users Menu Item -->
+            <li class="menu-item {{ request()->routeIs('user_management.*') ? 'open' : '' }}">
+                <a href="javascript:void(0);" class="menu-link menu-toggle active">
+                    <span class="material-symbols-outlined menu-icon">group</span>
+                    <span class="title">Users</span>
                 </a>
-            </li> --}}
+                <ul class="menu-sub">
+                    <li class="menu-item">
+                        <a href="{{ route('user_management.clergy.index') }}"
+                            class="menu-link {{ request()->routeIs('user_management.clergy.*') ? 'active' : '' }}">
+                            Clergy
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="{{ route('user_management.seeker.index') }}"
+                            class="menu-link {{ request()->routeIs('user_management.seeker.*') ? 'active' : '' }}">
+                            Seeker
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
             <li class="menu-item open">
                 <a href="{{ route('faqs.index') }}"
                     class="menu-link {{ request()->routeIs('faqs.*') ? 'active' : '' }}">
