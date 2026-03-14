@@ -3,9 +3,13 @@
 namespace App\Providers\V1;
 
 use App\Models\Booking;
+use App\Models\LiveSessionRequest;
 use App\Models\ParkingSpace;
+use App\Models\PrayerRequest;
 use App\Models\Review;
 use App\Models\VehicleDetail;
+use App\Policies\LiveSessionRequestPolicy;
+use App\Policies\PrayerRequestPolicy;
 use App\Policies\V1\OwnershipPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
@@ -17,6 +21,8 @@ class AuthServiceProvider extends ServiceProvider
         Booking::class => OwnershipPolicy::class,
         ParkingSpace::class => OwnershipPolicy::class,
         Review::class => OwnershipPolicy::class,
+        PrayerRequest::class => PrayerRequestPolicy::class,
+        LiveSessionRequest::class => LiveSessionRequestPolicy::class,
     ];
 
     public function boot(): void

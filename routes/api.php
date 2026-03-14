@@ -12,6 +12,10 @@ use App\Http\Controllers\API\V1\CMS\FindClergyPageController as APIFindClergyPag
 use App\Http\Controllers\API\V1\CMS\OnboardingController;
 use App\Http\Controllers\API\V1\QuestionController;
 use App\Http\Controllers\API\V1\DashboardController;
+use App\Http\Controllers\API\V1\Clergy\LiveSessionRequestController as ClergyLiveSessionRequestController;
+use App\Http\Controllers\API\V1\Clergy\PrayerRequestController as ClergyPrayerRequestController;
+use App\Http\Controllers\API\V1\Seeker\LiveSessionRequestController as SeekerLiveSessionRequestController;
+use App\Http\Controllers\API\V1\Seeker\PrayerRequestController as SeekerPrayerRequestController;
 use App\Http\Controllers\API\V1\User\ClergyController;
 use App\Http\Controllers\API\V1\User\NotificationController;
 use App\Http\Controllers\API\V1\User\UserContactSupportController;
@@ -38,19 +42,41 @@ Route::group(['middleware' => 'auth:api'], function ($router) {
     Route::get('/me', [UserController::class, 'me']);
     Route::post('/update-profile', [UserController::class, 'updateProfile']);
     Route::post('/update-password', [UserController::class, 'changePassword']);
+    Route::post('/clergy-profile-update', [UserController::class, 'ClergyProfileUpdate']);
 });
 
 // only for user
 Route::group(['middleware' => ['auth:api', 'check_is_user']], function ($router) {
     // route for dashboard data
     Route::get('/dashboard-data/home', [DashboardController::class, 'dashboardData']);
-    
 
     // Notifications route
     Route::get('/my-notifications', [NotificationController::class, 'index']);
     Route::post('/my-notifications/mark-as-read', [NotificationController::class, 'markAsRead']);
     Route::delete('/my-notifications-delete/{id}', [NotificationController::class, 'delete']);
     Route::delete('/my-notifications-delete-all', [NotificationController::class, 'deleteAll']);
+});
+
+// Seeker: Prayer requests & Live session requests
+Route::group(['middleware' => ['auth:api', 'check_is_seeker'], 'prefix' => 'seeker'], function ($router) {
+    Route::get('/prayer-requests', [SeekerPrayerRequestController::class, 'index']);
+    Route::get('/prayer-requests/{id}', [SeekerPrayerRequestController::class, 'show']);
+    Route::post('/prayer-requests', [SeekerPrayerRequestController::class, 'store']);
+
+    Route::get('/live-session-requests', [SeekerLiveSessionRequestController::class, 'index']);
+    Route::get('/live-session-requests/{id}', [SeekerLiveSessionRequestController::class, 'show']);
+    Route::post('/live-session-requests', [SeekerLiveSessionRequestController::class, 'store']);
+});
+
+// Clergy: Prayer requests & Live session requests
+Route::group(['middleware' => ['auth:api', 'check_is_clergy'], 'prefix' => 'clergy'], function ($router) {
+    Route::get('/prayer-requests', [ClergyPrayerRequestController::class, 'index']);
+    Route::get('/prayer-requests/{id}', [ClergyPrayerRequestController::class, 'show']);
+    Route::post('/prayer-requests/reply/{id}', [ClergyPrayerRequestController::class, 'reply']);
+
+    Route::get('/live-session-requests', [ClergyLiveSessionRequestController::class, 'index']);
+    Route::get('/live-session-requests/{id}', [ClergyLiveSessionRequestController::class, 'show']);
+    Route::post('/live-session-requests/schedule/{id}', [ClergyLiveSessionRequestController::class, 'schedule']);
 });
 
 // route for clergy 

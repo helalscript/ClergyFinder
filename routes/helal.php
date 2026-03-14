@@ -13,6 +13,8 @@ use App\Http\Controllers\Web\Backend\CMS\FaqController;
 use App\Http\Controllers\Web\Backend\CMS\HomePageSocialLinkContainerController;
 use App\Http\Controllers\Web\Backend\ContactMessageController;
 use App\Http\Controllers\Web\Backend\DynamicPageController;
+use App\Http\Controllers\Web\Backend\LiveSessionRequestController;
+use App\Http\Controllers\Web\Backend\PrayerRequestController;
 use App\Http\Controllers\Web\Backend\NotificationController;
 use App\Http\Controllers\Web\Backend\ProfileController;
 use App\Http\Controllers\Web\Backend\SystemSettingController;
@@ -96,6 +98,19 @@ Route::middleware(['auth:web', 'role_check'])->prefix('admin')->group(function (
     Route::get('/contact-us-message', [ContactMessageController::class, 'index'])->name('admin_contact_us.index');
     Route::get('/contact-us-message/{id}', [ContactMessageController::class, 'show'])->name('admin_contact_us.show');
     Route::delete('/contact-us-message/{id}', [ContactMessageController::class, 'destroy'])->name('admin_contact_us.destroy');
+
+    // Prayer requests (admin)
+    Route::get('/prayer-requests', [PrayerRequestController::class, 'index'])->name('admin.prayer_requests.index');
+    Route::get('/prayer-requests/{id}', [PrayerRequestController::class, 'show'])->name('admin.prayer_requests.show');
+    Route::post('/prayer-requests/{id}/assign-clergy', [PrayerRequestController::class, 'assignClergy'])->name('admin.prayer_requests.assign_clergy');
+    Route::delete('/prayer-requests/{id}', [PrayerRequestController::class, 'destroy'])->name('admin.prayer_requests.destroy');
+
+    // Live session requests (admin)
+    Route::get('/live-session-requests', [LiveSessionRequestController::class, 'index'])->name('admin.live_session_requests.index');
+    Route::get('/live-session-requests/{id}', [LiveSessionRequestController::class, 'show'])->name('admin.live_session_requests.show');
+    Route::post('/live-session-requests/{id}/assign-clergy', [LiveSessionRequestController::class, 'assignClergy'])->name('admin.live_session_requests.assign_clergy');
+    Route::post('/live-session-requests/{id}/mark-completed', [LiveSessionRequestController::class, 'markCompleted'])->name('admin.live_session_requests.mark_completed');
+    Route::delete('/live-session-requests/{id}', [LiveSessionRequestController::class, 'destroy'])->name('admin.live_session_requests.destroy');
 });
 
 // Public route for dynamic pages accessible to all users

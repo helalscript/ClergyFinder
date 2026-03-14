@@ -63,6 +63,20 @@ $systemSetting = App\Models\SystemSetting::first();
                     <span class="title">FAQ's</span>
                 </a>
             </li>
+            <li class="menu-item open">
+                <a href="{{ route('admin.prayer_requests.index') }}"
+                    class="menu-link {{ request()->routeIs('admin.prayer_requests.*') ? 'active' : '' }}">
+                    <span class="material-symbols-outlined menu-icon">volunteer_activism</span>
+                    <span class="title">Prayer Requests</span>
+                </a>
+            </li>
+            <li class="menu-item open">
+                <a href="{{ route('admin.live_session_requests.index') }}"
+                    class="menu-link {{ request()->routeIs('admin.live_session_requests.*') ? 'active' : '' }}">
+                    <span class="material-symbols-outlined menu-icon">video_call</span>
+                    <span class="title">Live Session Requests</span>
+                </a>
+            </li>
             {{-- <li class="menu-item open">
                 <a href="{{ route('blogs.index') }}"
                     class="menu-link {{ request()->routeIs('blogs.*') ? 'active' : '' }}">
