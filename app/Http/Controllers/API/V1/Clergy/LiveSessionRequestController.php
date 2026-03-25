@@ -6,7 +6,9 @@ use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\ScheduleLiveSessionRequestRequest;
 use App\Mail\LiveSessionScheduledToSeeker;
+use App\Notifications\Chat\LiveSessionScheduledToSeekerInApp;
 use App\Models\LiveSessionRequest;
+use App\Services\Chat\ChatRoomService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Mail;
 
@@ -43,7 +45,7 @@ class LiveSessionRequestController extends Controller
         return Helper::jsonResponse(true, 'Live session request fetched successfully', 200, $request);
     }
 
-    public function schedule(ScheduleLiveSessionRequestRequest $request, int $id): JsonResponse
+    public function schedule(ScheduleLiveSessionRequestRequest $request, int $id, ChatRoomService $chatRoomService): JsonResponse
     {
         $user = auth('api')->user();
         if (!$user->clergy || !$user->clergy->is_live_session) {
@@ -66,6 +68,14 @@ class LiveSessionRequestController extends Controller
         $liveSessionRequest->load(['seeker']);
         Mail::to($liveSessionRequest->seeker->email)->send(new LiveSessionScheduledToSeeker($liveSessionRequest));
 
-        return Helper::jsonResponse(true, 'Live session scheduled successfully', 200, $liveSessionRequest->fresh(['seeker:id,name,email']));
+        $freshRequest = $liveSessionRequest->fresh();
+        $chatRoom = $chatRoomService->createLiveSessionChatRoom($freshRequest);
+        $liveSessionRequest->seeker->notify(new LiveSessionScheduledToSeekerInApp($freshRequest, $chatRoom));
+
+        $freshRequest->load(['seeker:id,name,email']);
+
+        $freshRequest->setAttribute('chat_room_id', $chatRoom->id);
+
+        return Helper::jsonResponse(true, 'Live session scheduled successfully', 200, $freshRequest);
     }
 }

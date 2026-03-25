@@ -7,6 +7,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\ReplyPrayerRequestRequest;
 use App\Mail\PrayerReplyToSeeker;
 use App\Models\PrayerRequest;
+use App\Notifications\Chat\PrayerRepliedToSeekerInApp;
+use App\Services\Chat\ChatRoomService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Mail;
 
@@ -44,7 +46,7 @@ class PrayerRequestController extends Controller
         return Helper::jsonResponse(true, 'Prayer request fetched successfully', 200, $request);
     }
 
-    public function reply(ReplyPrayerRequestRequest $request, int $id): JsonResponse
+    public function reply(ReplyPrayerRequestRequest $request, int $id, ChatRoomService $chatRoomService): JsonResponse
     {
         $user = auth('api')->user();
         if (!$user->clergy || !$user->clergy->is_prayer_request) {
@@ -66,6 +68,14 @@ class PrayerRequestController extends Controller
         $prayerRequest->load(['seeker']);
         Mail::to($prayerRequest->seeker->email)->send(new PrayerReplyToSeeker($prayerRequest));
 
-        return Helper::jsonResponse(true, 'Reply sent successfully', 200, $prayerRequest->fresh(['seeker:id,name,email']));
+        $freshRequest = $prayerRequest->fresh();
+        $chatRoom = $chatRoomService->createPrayerChatRoom($freshRequest);
+        $prayerRequest->seeker->notify(new PrayerRepliedToSeekerInApp($freshRequest, $chatRoom));
+
+        $freshRequest->load(['seeker:id,name,email']);
+
+        $freshRequest->setAttribute('chat_room_id', $chatRoom->id);
+
+        return Helper::jsonResponse(true, 'Reply sent successfully', 200, $freshRequest);
     }
 }

@@ -6,6 +6,7 @@ use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\StorePrayerRequestRequest;
 use App\Mail\NewPrayerRequestToClergy;
+use App\Notifications\Chat\NewPrayerRequestToClergyInApp;
 use App\Models\Clergy;
 use App\Models\PrayerRequest;
 use App\Models\User;
@@ -51,6 +52,7 @@ class PrayerRequestController extends Controller
             if ($clergyUsers) {
                 // Mail::to('husoaib422@gmail.com')->queue(new NewPrayerRequestToClergy($prayerRequest->fresh()));
                 Mail::to($clergyUsers->user->email)->queue(new NewPrayerRequestToClergy($prayerRequest->fresh()));
+                $clergyUsers->user->notify(new NewPrayerRequestToClergyInApp($prayerRequest->fresh()));
             }
 
             return Helper::jsonResponse(true, 'Prayer request submitted successfully', 201);

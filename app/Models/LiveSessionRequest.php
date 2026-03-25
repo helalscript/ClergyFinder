@@ -14,10 +14,15 @@ class LiveSessionRequest extends Model
         'meeting_link',
         'scheduled_time',
         'status',
+        'video_status',
+        'video_started_at',
+        'video_completed_at',
     ];
 
     protected $casts = [
         'scheduled_time' => 'datetime',
+        'video_started_at' => 'datetime',
+        'video_completed_at' => 'datetime',
     ];
 
     public function seeker(): BelongsTo

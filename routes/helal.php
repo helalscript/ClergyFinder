@@ -15,6 +15,7 @@ use App\Http\Controllers\Web\Backend\ContactMessageController;
 use App\Http\Controllers\Web\Backend\DynamicPageController;
 use App\Http\Controllers\Web\Backend\LiveSessionRequestController;
 use App\Http\Controllers\Web\Backend\PrayerRequestController;
+use App\Http\Controllers\Web\Backend\ChatController;
 use App\Http\Controllers\Web\Backend\NotificationController;
 use App\Http\Controllers\Web\Backend\ProfileController;
 use App\Http\Controllers\Web\Backend\SystemSettingController;
@@ -111,6 +112,10 @@ Route::middleware(['auth:web', 'role_check'])->prefix('admin')->group(function (
     Route::post('/live-session-requests/{id}/assign-clergy', [LiveSessionRequestController::class, 'assignClergy'])->name('admin.live_session_requests.assign_clergy');
     Route::post('/live-session-requests/{id}/mark-completed', [LiveSessionRequestController::class, 'markCompleted'])->name('admin.live_session_requests.mark_completed');
     Route::delete('/live-session-requests/{id}', [LiveSessionRequestController::class, 'destroy'])->name('admin.live_session_requests.destroy');
+
+    // Chats (in-app chat rooms)
+    Route::get('/chats', [ChatController::class, 'index'])->name('admin.chats.index');
+    Route::get('/chats/{room}', [ChatController::class, 'show'])->name('admin.chats.show');
 });
 
 // Public route for dynamic pages accessible to all users

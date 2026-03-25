@@ -14,8 +14,10 @@ use App\Http\Controllers\API\V1\QuestionController;
 use App\Http\Controllers\API\V1\DashboardController;
 use App\Http\Controllers\API\V1\Clergy\LiveSessionRequestController as ClergyLiveSessionRequestController;
 use App\Http\Controllers\API\V1\Clergy\PrayerRequestController as ClergyPrayerRequestController;
+use App\Http\Controllers\API\V1\Clergy\LiveSessionVideoController;
 use App\Http\Controllers\API\V1\Seeker\LiveSessionRequestController as SeekerLiveSessionRequestController;
 use App\Http\Controllers\API\V1\Seeker\PrayerRequestController as SeekerPrayerRequestController;
+use App\Http\Controllers\API\V1\Chat\ChatController;
 use App\Http\Controllers\API\V1\User\ClergyController;
 use App\Http\Controllers\API\V1\User\NotificationController;
 use App\Http\Controllers\API\V1\User\UserContactSupportController;
@@ -77,6 +79,22 @@ Route::group(['middleware' => ['auth:api', 'check_is_clergy'], 'prefix' => 'cler
     Route::get('/live-session-requests', [ClergyLiveSessionRequestController::class, 'index']);
     Route::get('/live-session-requests/{id}', [ClergyLiveSessionRequestController::class, 'show']);
     Route::post('/live-session-requests/schedule/{id}', [ClergyLiveSessionRequestController::class, 'schedule']);
+
+    // Video session start/complete from chat.
+    Route::post('/live-session-requests/{id}/video/start', [LiveSessionVideoController::class, 'start']);
+    Route::post('/live-session-requests/{id}/video/complete', [LiveSessionVideoController::class, 'complete']);
+});
+
+// Chat system
+Route::group(['middleware' => ['auth:api']], function ($router) {
+    Route::prefix('chats')->group(function () use ($router) {
+        Route::get('/', [ChatController::class, 'rooms']);
+        Route::get('/{room}', [ChatController::class, 'show']);
+        Route::get('/messages/{room}', [ChatController::class, 'messages']);
+        Route::post('/send-messages/{room}', [ChatController::class, 'sendMessage']);
+        Route::post('/presence/{room}', [ChatController::class, 'presence']);
+        Route::post('/block/{room}', [ChatController::class, 'block']);
+    });
 });
 
 // route for clergy 

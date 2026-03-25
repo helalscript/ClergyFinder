@@ -56,6 +56,13 @@ $systemSetting = App\Models\SystemSetting::first();
                 </ul>
             </li>
 
+            {{-- <li class="menu-item open">
+                <a href="{{ route('admin_contact_us.index') }}"
+                    class="menu-link {{ request()->routeIs('admin_contact_us.*') ? 'active' : '' }}">
+                    <span class="material-symbols-outlined menu-icon">content_paste</span>
+                    <span class="title">Contact Message</span>
+                </a>
+            </li> --}}
             <li class="menu-item open">
                 <a href="{{ route('faqs.index') }}"
                     class="menu-link {{ request()->routeIs('faqs.*') ? 'active' : '' }}">
@@ -75,6 +82,13 @@ $systemSetting = App\Models\SystemSetting::first();
                     class="menu-link {{ request()->routeIs('admin.live_session_requests.*') ? 'active' : '' }}">
                     <span class="material-symbols-outlined menu-icon">video_call</span>
                     <span class="title">Live Session Requests</span>
+                </a>
+            </li>
+            <li class="menu-item open">
+                <a href="{{ route('admin.chats.index') }}"
+                    class="menu-link {{ request()->routeIs('admin.chats.*') ? 'active' : '' }}">
+                    <span class="material-symbols-outlined menu-icon">chat</span>
+                    <span class="title">Chats</span>
                 </a>
             </li>
             {{-- <li class="menu-item open">

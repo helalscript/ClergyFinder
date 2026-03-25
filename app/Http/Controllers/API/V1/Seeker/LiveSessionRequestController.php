@@ -6,6 +6,7 @@ use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\StoreLiveSessionRequestRequest;
 use App\Mail\NewLiveSessionRequestToClergy;
+use App\Notifications\Chat\NewLiveSessionRequestToClergyInApp;
 use App\Models\Clergy;
 use App\Models\LiveSessionRequest;
 use Exception;
@@ -66,6 +67,7 @@ class LiveSessionRequestController extends Controller
 
             if ($clergyUsers) {
                 Mail::to($clergyUsers->user->email)->queue(new NewLiveSessionRequestToClergy($liveSessionRequest->fresh()));
+                $clergyUsers->user->notify(new NewLiveSessionRequestToClergyInApp($liveSessionRequest->fresh()));
             } else {
                 return Helper::jsonResponse(false, 'Clergy not found', 404);
             }
