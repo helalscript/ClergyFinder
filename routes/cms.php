@@ -10,6 +10,7 @@ use App\Http\Controllers\Web\Backend\CMS\HowItWorkPageController;
 use App\Http\Controllers\Web\Backend\CMS\HowItWorkWorkProgressController;
 use App\Http\Controllers\Web\Backend\CMS\HowItWorkOurValuesController;
 use App\Http\Controllers\Web\Backend\CMS\FindClergyPageController;
+use App\Http\Controllers\Web\Backend\CMS\FaqPageController;
 use Illuminate\Support\Facades\Route;
 
 // ===================== CMS HOME PAGE =====================
@@ -86,6 +87,12 @@ Route::prefix('cms/question-page')->name('cms.question_page.')->group(function (
     Route::put('seeker/{id}', [QuestionPageController::class, 'update'])->name('seeker.update');
     Route::delete('seeker/{id}', [QuestionPageController::class, 'destroy'])->name('seeker.destroy');
     Route::post('seeker/status/{id}', [QuestionPageController::class, 'status'])->name('seeker.status');
+});
+
+// ===================== CMS FAQ Page =====================
+Route::prefix('cms/faq-page')->name('cms.faq_page.')->group(function () {
+    Route::get('/hero-section', [FaqPageController::class, 'getHeroSection'])->name('hero_section.create');
+    Route::post('/hero-section', [FaqPageController::class, 'updateHeroSection'])->name('hero_section.update');
 });
 
 

@@ -10,6 +10,7 @@ use App\Http\Controllers\API\V1\CMS\HomePageController;
 use App\Http\Controllers\API\V1\CMS\HowItWorkPageController as APIHowItWorkPageController;
 use App\Http\Controllers\API\V1\CMS\FindClergyPageController as APIFindClergyPageController;
 use App\Http\Controllers\API\V1\CMS\OnboardingController;
+use App\Http\Controllers\API\V1\CMS\FaqPageController as APIFaqPageController;
 use App\Http\Controllers\API\V1\QuestionController;
 use App\Http\Controllers\API\V1\DashboardController;
 use App\Http\Controllers\API\V1\Clergy\LiveSessionRequestController as ClergyLiveSessionRequestController;
@@ -19,6 +20,8 @@ use App\Http\Controllers\API\V1\Seeker\LiveSessionRequestController as SeekerLiv
 use App\Http\Controllers\API\V1\Seeker\PrayerRequestController as SeekerPrayerRequestController;
 use App\Http\Controllers\API\V1\Chat\ChatController;
 use App\Http\Controllers\API\V1\User\ClergyController;
+use App\Http\Controllers\API\V1\User\Faqs\UserFaqController;
+use App\Http\Controllers\API\V1\User\NewsletterController;
 use App\Http\Controllers\API\V1\User\NotificationController;
 use App\Http\Controllers\API\V1\User\UserContactSupportController;
 use Illuminate\Support\Facades\Route;
@@ -97,6 +100,14 @@ Route::group(['middleware' => ['auth:api']], function ($router) {
     });
 });
 
+// FAQ for users (public)
+Route::get('/faqs', [UserFaqController::class, 'index']);
+Route::get('/faqs/categories', [UserFaqController::class, 'categories']);
+Route::get('/faqs/{type}', [UserFaqController::class, 'byType']);
+
+// Newsletter (public)
+Route::post('/newsletter/subscribe', [NewsletterController::class, 'subscribe']);
+
 // route for clergy 
 Route::apiResource('clergy', ClergyController::class)->only(['index', 'show']);
 
@@ -131,6 +142,11 @@ Route::group(['prefix' => 'cms/home-page'], function () {
 // route for find clergy page
 Route::group(['prefix' => 'cms/find-clergy-page'], function () {
     Route::get('/hero-section', [APIFindClergyPageController::class, 'getHeroSection']);
+});
+
+// route for faq page
+Route::group(['prefix' => 'cms/faq-page'], function () {
+    Route::get('/hero-section', [APIFaqPageController::class, 'getHeroSection']);
 });
  
 // route for how it work page

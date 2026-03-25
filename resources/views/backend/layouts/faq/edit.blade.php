@@ -65,6 +65,25 @@
 
                     <div class="col-lg-12">
                         <div class="form-group mb-4">
+                            <label class="label text-secondary">FAQ Category</label>
+                            <select
+                                name="faq_category_id"
+                                class="form-select @error('faq_category_id') is-invalid @enderror">
+                                <option value="">-- Select Category --</option>
+                                @foreach ($categories as $category)
+                                    <option value="{{ $category->id }}" {{ (old('faq_category_id', $data->faq_category_id) == $category->id) ? 'selected' : '' }}>
+                                        {{ $category->name ? $category->name : $category->type }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('faq_category_id')
+                                <div id="faq_category_id-error" class="text-danger mt-1">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="col-lg-12">
+                        <div class="form-group mb-4">
                             <label class="label text-secondary">Faq Answer</label>
                             <div class="form-group position-relative">
                                 <textarea name="answer" class="form-control @error('answer') is-invalid @enderror" id="answer" placeholder="Page Content here">{{ old('answer', $data->answer) }}</textarea>

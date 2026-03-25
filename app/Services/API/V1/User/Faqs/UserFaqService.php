@@ -3,6 +3,7 @@
 namespace App\Services\API\V1\User\Faqs;
 
 use App\Models\Faq;
+use App\Models\FaqCategory;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
@@ -24,12 +25,55 @@ class UserFaqService
     {
         try {
             $per_page = $request->per_page ?? 25;
-            $faqs = Faq::select('id', 'question', 'answer')
+
+            // Backward compatibility: if client passes `type`, return faqs for that type.
+            $type = $request->type ?? null;
+            if ($type) {
+                $category = $this->getCategoryByType($type);
+                if (! $category) {
+                    return [];
+                }
+
+                return Faq::select('id', 'question', 'answer')
+                    ->where('faq_category_id', $category->id)
+                    ->where('status', 'active')
+                    ->paginate($per_page);
+            }
+
+            return Faq::select('id', 'question', 'answer', 'faq_category_id')
+                ->where('status', 'active')
                 ->paginate($per_page);
-            return $faqs;
         } catch (Exception $e) {
             Log::error("UserFaqService::index" . $e->getMessage());
             throw $e;
         }
+    }
+
+    public function getCategoryByType(string $type): ?FaqCategory
+    {
+        return FaqCategory::where('type', $type)
+            ->where('status', 'active')
+            ->first();
+    }
+
+    public function getFaqsByCategoryType(string $type, int $per_page = 25)
+    {
+        $category = $this->getCategoryByType($type);
+        if (! $category) {
+            return [];
+        }
+
+        return Faq::select('id', 'question', 'answer')
+            ->where('faq_category_id', $category->id)
+            ->where('status', 'active')
+            ->paginate($per_page);
+    }
+
+    public function getAllCategories()
+    {
+        return FaqCategory::where('status', 'active')
+            ->orderBy('id')
+            ->select('id', 'name')
+            ->get();
     }
 }
