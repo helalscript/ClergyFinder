@@ -43,7 +43,7 @@
                                 type="button" data-bs-toggle="dropdown" aria-expanded="false" onclick="markAllRead()">
                                 
                                 <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="notification-count">
-                                    {{ Auth::user()->notifications()->whereNull('read_at')->count() }}
+                                    {{ Auth::user()?->notifications()->whereNull('read_at')->count() }}
                                 </span>
                                 
                                 <span class="material-symbols-outlined">notifications</span>
@@ -51,12 +51,13 @@
                             <div class="dropdown-menu dropdown-lg p-0 border-0 p-0 dropdown-menu-end">
                                 <div class="d-flex justify-content-between align-items-center title">
                                     <span class="fw-semibold fs-15 text-secondary">Notifications <span
-                                            class="fw-normal text-body fs-14">({{ Auth::user()->notifications()->whereNull('read_at')->count() }})</span></span>
+                                            class="fw-normal text-body fs-14">({{ Auth::user()?->notifications()->whereNull('read_at')->count() }})</span></span>
                                     <button class="p-0 m-0 bg-transparent border-0 fs-14 text-primary"  onclick="deleteAllNotification()">Delete All</button>
                                 </div>
 
                                 <div class="max-h-217" data-simplebar id="notification-list">
-                                    @foreach (Auth::user()->notifications as $notification)
+                                    @if (Auth::user()?->notifications)
+                                    @foreach (Auth::user()?->notifications as $notification)
                                     <div class="notification-menu {{ $notification->read_at ? '' : 'unseen' }}"  id="notification_{{ $notification->id }}">
                                         <a href="{{ $notification->data['url'] ?? '' }}" class="dropdown-item" >
                                             <div class="d-flex align-items-center">
@@ -79,7 +80,7 @@
                                         </a>
                                     </div>
                                     @endforeach
-                                    
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -97,7 +98,7 @@
                                     <div class="d-flex align-items-center justify-content-between">
                                         <div class="d-none d-xxl-block">
                                             <div class="d-flex align-content-center">
-                                                <h3>{{ Auth::user()->name ?? 'Mr. John Doe' }}</h3>
+                                                <h3>{{ Auth::user()?->name ?? 'Mr. John Doe' }}</h3>
                                             </div>
                                         </div>
                                     </div>
@@ -108,12 +109,12 @@
                                 <div class="d-flex align-items-center info">
                                     <div class="flex-shrink-0">
                                         <img class="rounded-circle wh-30 administrator"
-                                            src="{{ asset(Auth::user()->avatar ?? 'backend/admin/assets/images/avatar_defult.png') }}"
+                                            src="{{ asset(Auth::user()?->avatar ?? 'backend/admin/assets/images/avatar_defult.png') }}"
                                             alt="admin">
                                     </div>
                                     <div class="flex-grow-1 ms-2">
-                                        <h3 class="fw-medium">{{ Auth::user()->name ?? 'Mr. John Doe' }}</h3>
-                                        <span class="fs-12">{{ Auth::user()->role ?? 'Marketing Manager' }}</span>
+                                        <h3 class="fw-medium">{{ Auth::user()?->name ?? 'Mr. John Doe' }}</h3>
+                                        <span class="fs-12">{{ Auth::user()?->role ?? 'Marketing Manager' }}</span>
                                     </div>
                                 </div>
                                 <ul class="admin-link ps-0 mb-0 list-unstyled">

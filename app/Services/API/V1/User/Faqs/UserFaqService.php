@@ -5,8 +5,8 @@ namespace App\Services\API\V1\User\Faqs;
 use App\Models\Faq;
 use App\Models\FaqCategory;
 use Exception;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class UserFaqService
 {
@@ -16,6 +16,7 @@ class UserFaqService
     {
         $this->user = Auth::user();
     }
+
     /**
      * Fetch all resources.
      *
@@ -44,7 +45,7 @@ class UserFaqService
                 ->where('status', 'active')
                 ->paginate($per_page);
         } catch (Exception $e) {
-            Log::error("UserFaqService::index" . $e->getMessage());
+            Log::error('UserFaqService::index'.$e->getMessage());
             throw $e;
         }
     }
@@ -75,5 +76,17 @@ class UserFaqService
             ->orderBy('id')
             ->select('id', 'name')
             ->get();
+    }
+
+    public function getCategoryById(string $id)
+    {
+        $category = FaqCategory::where('status', 'active')
+            ->with('faqs:id,question,answer,faq_category_id')
+            ->find($id);
+        if (! $category) {
+            throw new Exception('Category not found');
+        }
+
+        return $category;
     }
 }

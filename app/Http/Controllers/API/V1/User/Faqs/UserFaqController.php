@@ -21,9 +21,9 @@ class UserFaqController extends Controller
         try {
             $per_page = (int) ($request->per_page ?? 25);
 
-            $data = $this->faqService->getAllCategoriesWithFaqs($per_page);
+            $data = $this->faqService->index($per_page);
 
-            return Helper::jsonResponse(true, 'Faqs fetched successfully', 200, $data);
+            return Helper::jsonResponse(true, 'Faqs fetched successfully', 200, $data,true);
         } catch (Exception $e) {
             Log::error('UserFaqController::index ' . $e->getMessage());
 
@@ -43,14 +43,12 @@ class UserFaqController extends Controller
         }
     }
 
-    public function byType(string $type, Request $request): JsonResponse
+    public function showCategory(string $id): JsonResponse
     {
         try {
-            $per_page = (int) ($request->per_page ?? 25);
+            $category = $this->faqService->getCategoryById($id);
 
-            $faqs = $this->faqService->getFaqsByCategoryType($type, $per_page);
-
-            return Helper::jsonResponse(true, 'Faqs fetched successfully', 200, $faqs);
+            return Helper::jsonResponse(true, 'Faqs fetched successfully', 200, $category);
         } catch (Exception $e) {
             Log::error('UserFaqController::byType ' . $e->getMessage());
 

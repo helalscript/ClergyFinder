@@ -102,8 +102,8 @@ Route::group(['middleware' => ['auth:api']], function ($router) {
 
 // FAQ for users (public)
 Route::get('/faqs', [UserFaqController::class, 'index']);
-Route::get('/faqs/categories', [UserFaqController::class, 'categories']);
-Route::get('/faqs/{type}', [UserFaqController::class, 'byType']);
+Route::get('/faqs-categories', [UserFaqController::class, 'categories']);
+Route::get('/faqs-categories/{id}', [UserFaqController::class, 'showCategory']);
 
 // Newsletter (public)
 Route::post('/newsletter/subscribe', [NewsletterController::class, 'subscribe']);
