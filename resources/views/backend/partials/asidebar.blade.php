@@ -55,7 +55,13 @@ $systemSetting = App\Models\SystemSetting::first();
                     </li>
                 </ul>
             </li>
-
+            <li class="menu-item open">
+                <a href="{{ route('admin.chats.index') }}"
+                    class="menu-link {{ request()->routeIs('admin.chats.*') ? 'active' : '' }}">
+                    <span class="material-symbols-outlined menu-icon">chat</span>
+                    <span class="title">Chats</span>
+                </a>
+            </li>
             {{-- <li class="menu-item open">
                 <a href="{{ route('admin_contact_us.index') }}"
                     class="menu-link {{ request()->routeIs('admin_contact_us.*') ? 'active' : '' }}">
@@ -63,6 +69,36 @@ $systemSetting = App\Models\SystemSetting::first();
                     <span class="title">Contact Message</span>
                 </a>
             </li> --}}
+            
+            <li class="menu-item open">
+                <a href="{{ route('admin.prayer_requests.index') }}"
+                    class="menu-link {{ request()->routeIs('admin.prayer_requests.*') ? 'active' : '' }}">
+                    <span class="material-symbols-outlined menu-icon">volunteer_activism</span>
+                    <span class="title">Prayer Requests</span>
+                </a>
+            </li>
+            <li class="menu-item open">
+                <a href="{{ route('admin.live_session_requests.index') }}"
+                    class="menu-link {{ request()->routeIs('admin.live_session_requests.*') ? 'active' : '' }}">
+                    <span class="material-symbols-outlined menu-icon">video_call</span>
+                    <span class="title">Live Session Requests</span>
+                </a>
+            </li>
+            
+            <li class="menu-item open">
+                <a href="{{ route('admin.newsletters.index') }}"
+                    class="menu-link {{ request()->routeIs('admin.newsletters.*') ? 'active' : '' }}">
+                    <span class="material-symbols-outlined menu-icon">mail</span>
+                    <span class="title">Newsletter</span>
+                </a>
+            </li>
+            {{-- <li class="menu-item open">
+                <a href="{{ route('blogs.index') }}"
+                    class="menu-link {{ request()->routeIs('blogs.*') ? 'active' : '' }}">
+                    <span class="material-symbols-outlined menu-icon">book</span>
+                    <span class="title">Blogs</span>
+                </a>
+            </li>--}}
             <li class="menu-item {{ request()->routeIs('faqs.*', 'faq_categories.*') ? 'open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle active">
                     <span class="material-symbols-outlined menu-icon">help_outline</span>
@@ -84,47 +120,12 @@ $systemSetting = App\Models\SystemSetting::first();
                 </ul>
             </li>
             <li class="menu-item open">
-                <a href="{{ route('admin.prayer_requests.index') }}"
-                    class="menu-link {{ request()->routeIs('admin.prayer_requests.*') ? 'active' : '' }}">
-                    <span class="material-symbols-outlined menu-icon">volunteer_activism</span>
-                    <span class="title">Prayer Requests</span>
-                </a>
-            </li>
-            <li class="menu-item open">
-                <a href="{{ route('admin.live_session_requests.index') }}"
-                    class="menu-link {{ request()->routeIs('admin.live_session_requests.*') ? 'active' : '' }}">
-                    <span class="material-symbols-outlined menu-icon">video_call</span>
-                    <span class="title">Live Session Requests</span>
-                </a>
-            </li>
-            <li class="menu-item open">
-                <a href="{{ route('admin.newsletters.index') }}"
-                    class="menu-link {{ request()->routeIs('admin.newsletters.*') ? 'active' : '' }}">
-                    <span class="material-symbols-outlined menu-icon">mail</span>
-                    <span class="title">Newsletter</span>
-                </a>
-            </li>
-            <li class="menu-item open">
-                <a href="{{ route('admin.chats.index') }}"
-                    class="menu-link {{ request()->routeIs('admin.chats.*') ? 'active' : '' }}">
-                    <span class="material-symbols-outlined menu-icon">chat</span>
-                    <span class="title">Chats</span>
-                </a>
-            </li>
-            {{-- <li class="menu-item open">
-                <a href="{{ route('blogs.index') }}"
-                    class="menu-link {{ request()->routeIs('blogs.*') ? 'active' : '' }}">
-                    <span class="material-symbols-outlined menu-icon">book</span>
-                    <span class="title">Blogs</span>
-                </a>
-            </li>
-            <li class="menu-item open">
                 <a href="{{ route('social_link.index') }}"
                     class="menu-link {{ request()->routeIs('social_link.*') ? 'active' : '' }}">
                     <span class="material-symbols-outlined menu-icon">link</span>
                     <span class="title">Social Link</span>
                 </a>
-            </li> --}}
+            </li> 
             <!-- menu title -->
             <li class="menu-title small text-uppercase">
                 <span class="menu-title-text">OTHERS</span>

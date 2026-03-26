@@ -24,6 +24,7 @@ class SystemSetting extends Model
         'favicon',
         'address',
         'description',
+        'web_url',
     ];
     protected $casts = [
         'id' => 'integer',
@@ -37,6 +38,7 @@ class SystemSetting extends Model
         'favicon' => 'string',
         'address' => 'string',
         'description' => 'string',
+        'web_url' => 'string',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];

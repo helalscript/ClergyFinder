@@ -23,6 +23,7 @@ return new class extends Migration
             $table->string('favicon')->nullable();
             $table->string('address')->nullable();
             $table->longText('description')->nullable();
+            $table->string('web_url')->nullable();
             $table->timestamps();
         });
     }
