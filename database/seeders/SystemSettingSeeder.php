@@ -23,7 +23,8 @@ class SystemSettingSeeder extends Seeder
             'logo' => 'uploads/logos/logo.png',
             'favicon' => 'uploads/favicons/favicon.png',
             'address' => 'TEST',
-            'description' => 'TEST',
+            'description' => 'Connecting you with trusted clergy and spiritual guides worldwide. A bridge between timeless faith and modern convenience.',
+            'web_url' => 'www.faithlink.com',
         ]);
     }
 }

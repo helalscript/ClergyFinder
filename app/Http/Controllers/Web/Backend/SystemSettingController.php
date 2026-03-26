@@ -45,20 +45,20 @@ class SystemSettingController extends Controller
      */
     public function update(Request $request)
     {
-        // dd($request->all());
+
         $validateDta = $request->validate([
             'title' => 'required|string|max:100',
             'system_name' => 'required|string|max:50',
-            'email' => 'required|string|email|max:255',
+            'email' => 'nullable|string|email|max:255',
             'contact_number' => 'nullable|string|max:20',
             'company_open_hour' => 'nullable|string|max:255',
-            'copyright_text' => 'required|string|max:255',
+            'copyright_text' => 'nullable|string|max:255',
             'logo' => 'nullable|mimes:jpeg,jpg,png,ico,svg',
             'favicon' => 'nullable|mimes:jpeg,jpg,png,ico,svg',
-            'address' => 'required|string|max:255',
-            'description' => 'required|string|max:1000',
+            'address' => 'nullable|string|max:255',
+            'web_url' => 'nullable|string|max:255',
+            'description' => 'nullable|string|max:1000',
         ]);
-        // dd($validateDta);
         $setting = SystemSetting::firstOrNew();
         $setting->title = $request->title;
         $setting->system_name = $request->system_name;

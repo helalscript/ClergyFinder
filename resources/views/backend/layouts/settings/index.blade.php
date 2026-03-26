@@ -106,7 +106,7 @@
                 </div>
             </div>
 
-            <div class="col-lg-6">
+            {{-- <div class="col-lg-6">
                 <div class="form-group mb-4">
                     <label class="label text-secondary">Address</label>
                     <div class="form-group position-relative">
@@ -119,18 +119,29 @@
                         <div id="address-error" class="text-danger">{{ $message }}</div>
                     @enderror
                 </div>
-            </div>
+            </div> --}}
             <div class="col-lg-6">
                 <div class="form-group mb-4">
                     <label class="label text-secondary">Description</label>
                     <div class="form-group position-relative">
-                        <textarea class="form-control text-dark ps-5 h-55 @error('description') is-invalid @enderror" name="description"
+                        <textarea class="form-control text-dark ps-5 h-100 @error('description') is-invalid @enderror" name="description"
                             required placeholder="Enter description here">{{ old('description', $settings->description ?? '') }}</textarea>
                     </div>
                     @error('description')
                         <div id="description-error" class="text-danger">{{ $message }}</div>
                     @enderror
                 </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="form-group mb-4">
+                    <label class="label text-secondary">Web URL</label>
+                    <div class="form-group position-relative">
+                        <input type="text" class="form-control text-dark ps-5 h-55 @error('web_url') is-invalid @enderror" name="web_url" value="{{ old('web_url', $settings->web_url ?? '') }}" required placeholder="Enter web URL here">
+                    </div>
+                </div>
+                @error('web_url')
+                    <div id="web_url-error" class="text-danger">{{ $message }}</div>
+                @enderror
             </div>
 
 

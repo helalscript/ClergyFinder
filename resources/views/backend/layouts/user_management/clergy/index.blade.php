@@ -61,7 +61,7 @@
                                         <th scope="col">Avatar</th>
                                         <th scope="col">Name</th>
                                         <th scope="col">Email</th>
-                                        <th scope="col">Phone</th>
+                                        {{-- <th scope="col">Phone</th> --}}
                                         <th scope="col">Status</th>
                                         <th scope="col">Action</th>
                                     </tr>
@@ -169,12 +169,12 @@
                         orderable: true,
                         searchable: true,
                     },
-                    {
-                        data: 'phone',
-                        name: 'phone',
-                        orderable: true,
-                        searchable: true,
-                    },
+                    // {
+                    //     data: 'phone',
+                    //     name: 'phone',
+                    //     orderable: true,
+                    //     searchable: true,
+                    // },
                     {
                         data: 'status',
                         name: 'status',

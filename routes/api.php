@@ -107,7 +107,8 @@ Route::get('/faqs-categories/{id}', [UserFaqController::class, 'showCategory']);
 
 // Newsletter (public)
 Route::post('/newsletter/subscribe', [NewsletterController::class, 'subscribe']);
-
+// social link
+Route::get('/social-links', [HomePageController::class, 'getSocialLinks']);
 // route for clergy 
 Route::apiResource('clergy', ClergyController::class)->only(['index', 'show']);
 
