@@ -10,9 +10,14 @@
 
 use App\Http\Controllers\Web\Backend\BlogController;
 use App\Http\Controllers\Web\Backend\CMS\FaqController;
+use App\Http\Controllers\Web\Backend\CMS\FaqCategoryController;
 use App\Http\Controllers\Web\Backend\CMS\HomePageSocialLinkContainerController;
 use App\Http\Controllers\Web\Backend\ContactMessageController;
 use App\Http\Controllers\Web\Backend\DynamicPageController;
+use App\Http\Controllers\Web\Backend\LiveSessionRequestController;
+use App\Http\Controllers\Web\Backend\PrayerRequestController;
+use App\Http\Controllers\Web\Backend\ChatController;
+use App\Http\Controllers\Web\Backend\NewsletterController;
 use App\Http\Controllers\Web\Backend\NotificationController;
 use App\Http\Controllers\Web\Backend\ProfileController;
 use App\Http\Controllers\Web\Backend\SystemSettingController;
@@ -78,6 +83,10 @@ Route::middleware(['auth:web', 'role_check'])->prefix('admin')->group(function (
     Route::resource('/faqs', FaqController::class)->names('faqs');
     Route::post('/faqs/status/{id}', [FaqController::class, 'status'])->name('faqs.status');
 
+    // Route for FaqCategoryController
+    Route::resource('/faq-categories', FaqCategoryController::class)->names('faq_categories');
+    Route::post('/faq-categories/status/{id}', [FaqCategoryController::class, 'status'])->name('faq_categories.status');
+
     // Route Social link
     Route::resource('/social-link/index', HomePageSocialLinkContainerController::class)->names('social_link')->except('show');
     Route::post('/social-link/status/{id}', [HomePageSocialLinkContainerController::class, 'status'])->name('social_link.status');
@@ -96,6 +105,26 @@ Route::middleware(['auth:web', 'role_check'])->prefix('admin')->group(function (
     Route::get('/contact-us-message', [ContactMessageController::class, 'index'])->name('admin_contact_us.index');
     Route::get('/contact-us-message/{id}', [ContactMessageController::class, 'show'])->name('admin_contact_us.show');
     Route::delete('/contact-us-message/{id}', [ContactMessageController::class, 'destroy'])->name('admin_contact_us.destroy');
+
+    // Prayer requests (admin)
+    Route::get('/prayer-requests', [PrayerRequestController::class, 'index'])->name('admin.prayer_requests.index');
+    Route::get('/prayer-requests/{id}', [PrayerRequestController::class, 'show'])->name('admin.prayer_requests.show');
+    Route::post('/prayer-requests/{id}/assign-clergy', [PrayerRequestController::class, 'assignClergy'])->name('admin.prayer_requests.assign_clergy');
+    Route::delete('/prayer-requests/{id}', [PrayerRequestController::class, 'destroy'])->name('admin.prayer_requests.destroy');
+
+    // Live session requests (admin)
+    Route::get('/live-session-requests', [LiveSessionRequestController::class, 'index'])->name('admin.live_session_requests.index');
+    Route::get('/live-session-requests/{id}', [LiveSessionRequestController::class, 'show'])->name('admin.live_session_requests.show');
+    Route::post('/live-session-requests/{id}/assign-clergy', [LiveSessionRequestController::class, 'assignClergy'])->name('admin.live_session_requests.assign_clergy');
+    Route::post('/live-session-requests/{id}/mark-completed', [LiveSessionRequestController::class, 'markCompleted'])->name('admin.live_session_requests.mark_completed');
+    Route::delete('/live-session-requests/{id}', [LiveSessionRequestController::class, 'destroy'])->name('admin.live_session_requests.destroy');
+
+    // Chats (in-app chat rooms)
+    Route::get('/chats', [ChatController::class, 'index'])->name('admin.chats.index');
+    Route::get('/chats/{room}', [ChatController::class, 'show'])->name('admin.chats.show');
+
+    // Newsletter subscriptions
+    Route::get('/newsletters', [NewsletterController::class, 'index'])->name('admin.newsletters.index');
 });
 
 // Public route for dynamic pages accessible to all users

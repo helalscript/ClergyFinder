@@ -56,11 +56,59 @@ $systemSetting = App\Models\SystemSetting::first();
                 </ul>
             </li>
 
-            <li class="menu-item open">
-                <a href="{{ route('faqs.index') }}"
-                    class="menu-link {{ request()->routeIs('faqs.*') ? 'active' : '' }}">
+            {{-- <li class="menu-item open">
+                <a href="{{ route('admin_contact_us.index') }}"
+                    class="menu-link {{ request()->routeIs('admin_contact_us.*') ? 'active' : '' }}">
+                    <span class="material-symbols-outlined menu-icon">content_paste</span>
+                    <span class="title">Contact Message</span>
+                </a>
+            </li> --}}
+            <li class="menu-item {{ request()->routeIs('faqs.*', 'faq_categories.*') ? 'open' : '' }}">
+                <a href="javascript:void(0);" class="menu-link menu-toggle active">
                     <span class="material-symbols-outlined menu-icon">help_outline</span>
                     <span class="title">FAQ's</span>
+                </a>
+                <ul class="menu-sub">
+                    <li class="menu-item">
+                        <a href="{{ route('faqs.index') }}"
+                            class="menu-link {{ request()->routeIs('faqs.*') ? 'active' : '' }}">
+                            FAQ List
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="{{ route('faq_categories.index') }}"
+                            class="menu-link {{ request()->routeIs('faq_categories.*') ? 'active' : '' }}">
+                            FAQ Categories
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="menu-item open">
+                <a href="{{ route('admin.prayer_requests.index') }}"
+                    class="menu-link {{ request()->routeIs('admin.prayer_requests.*') ? 'active' : '' }}">
+                    <span class="material-symbols-outlined menu-icon">volunteer_activism</span>
+                    <span class="title">Prayer Requests</span>
+                </a>
+            </li>
+            <li class="menu-item open">
+                <a href="{{ route('admin.live_session_requests.index') }}"
+                    class="menu-link {{ request()->routeIs('admin.live_session_requests.*') ? 'active' : '' }}">
+                    <span class="material-symbols-outlined menu-icon">video_call</span>
+                    <span class="title">Live Session Requests</span>
+                </a>
+            </li>
+            <li class="menu-item open">
+                <a href="{{ route('admin.newsletters.index') }}"
+                    class="menu-link {{ request()->routeIs('admin.newsletters.*') ? 'active' : '' }}">
+                    <span class="material-symbols-outlined menu-icon">mail</span>
+                    <span class="title">Newsletter</span>
+                </a>
+            </li>
+            <li class="menu-item open">
+                <a href="{{ route('admin.chats.index') }}"
+                    class="menu-link {{ request()->routeIs('admin.chats.*') ? 'active' : '' }}">
+                    <span class="material-symbols-outlined menu-icon">chat</span>
+                    <span class="title">Chats</span>
                 </a>
             </li>
             {{-- <li class="menu-item open">
@@ -267,6 +315,22 @@ $systemSetting = App\Models\SystemSetting::first();
                         <a href="{{ route('cms.question_page.seeker.index') }}"
                             class="menu-link {{ request()->routeIs('cms.question_page.seeker.*') ? 'active' : '' }}">
                             Seeker Questions
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
+            <!-- CMS FAQ Page Menu Item -->
+            <li class="menu-item {{ request()->routeIs('cms.faq_page.*') ? 'open' : '' }}">
+                <a href="javascript:void(0);" class="menu-link menu-toggle active">
+                    <span class="material-symbols-outlined menu-icon">help_outline</span>
+                    <span class="title">FAQ Page</span>
+                </a>
+                <ul class="menu-sub">
+                    <li class="menu-item">
+                        <a href="{{ route('cms.faq_page.hero_section.create') }}"
+                            class="menu-link {{ request()->routeIs('cms.faq_page.hero_section.*') ? 'active' : '' }}">
+                            Hero Section
                         </a>
                     </li>
                 </ul>

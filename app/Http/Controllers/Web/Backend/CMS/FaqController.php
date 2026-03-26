@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Web\Backend\CMS;
 
 use App\Http\Controllers\Controller;
 use App\Models\Faq;
+use App\Models\FaqCategory;
 use Illuminate\Http\Request;
 use App\Enums\Page;
 use App\Enums\Section;
@@ -50,7 +51,10 @@ class FaqController extends Controller
              
                 </div>';
                 })
-                ->rawColumns(['status', 'action'])
+                ->addColumn('category', function ($data) {
+                    return $data->category->name;
+                })
+                ->rawColumns(['status', 'action', 'category'])
                 ->make(true);
         }
         return view("backend.layouts.faq.index");
@@ -61,7 +65,9 @@ class FaqController extends Controller
      */
     public function create()
     {
-        return view("backend.layouts.faq.create");
+        $categories = FaqCategory::where('status', 'active')->orderBy('id')->get();
+
+        return view("backend.layouts.faq.create", compact('categories'));
     }
 
     /**
@@ -72,6 +78,7 @@ class FaqController extends Controller
         $validatedData = $request->validate([
             'question' => 'required|string|max:255',
             'answer' => 'required|string',
+            'faq_category_id' => 'required|exists:faq_categories,id',
         ]);
         // dd($validatedData);
         try {
@@ -100,7 +107,9 @@ class FaqController extends Controller
     {
         $data = Faq::findOrFail($id);
 
-        return view("backend.layouts.faq.edit", compact('data'));
+        $categories = FaqCategory::where('status', 'active')->orderBy('id')->get();
+
+        return view("backend.layouts.faq.edit", compact('data', 'categories'));
     }
 
     /**
@@ -111,6 +120,7 @@ class FaqController extends Controller
         $validatedData = $request->validate([
             'question' => 'required|string|max:255',
             'answer' => 'required|string',
+            'faq_category_id' => 'required|exists:faq_categories,id',
         ]);
 
         try {
@@ -182,7 +192,7 @@ class FaqController extends Controller
             $data = CMS::updateOrCreate(
                 [
                     'page' => Page::HomePage->value,
-                    'section' => Section::FaqContainer->value,
+                    'section' => Section::Faqs->value,
                 ],
                 $validatedData
             );

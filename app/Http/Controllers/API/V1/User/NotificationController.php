@@ -19,7 +19,7 @@ class NotificationController extends Controller
     public function index()
     {
         try {
-            $notifications = auth()->user()->notifications;
+            $notifications = auth('api')->user()->notifications;
             return Helper::jsonResponse(true, "Notifications fetched successfully", 200, $notifications);
         } catch (Exception $e) {
             Log::error('NotificationController::index Error: ' . $e->getMessage());
@@ -39,7 +39,7 @@ class NotificationController extends Controller
             'notification_ids' => 'required|array',
         ]);
         try {
-            $user = auth()->user();
+            $user = auth('api')->user();
             $user->notifications()->whereIn('id', $validatedData['notification_ids'])->update(['read_at' => now()]);
             return Helper::jsonResponse(true, 'Notifications marked as read', 200);
         } catch (Exception $e) {
@@ -61,7 +61,7 @@ class NotificationController extends Controller
     public function delete($id)
     {
         try {
-            $notification = auth()->user()->notifications()->findOrFail($id);
+            $notification = auth('api')->user()->notifications()->findOrFail($id);
             $notification->delete();
 
             return Helper::jsonResponse(true, 'Notification deleted successfully.', 200);
@@ -84,7 +84,7 @@ class NotificationController extends Controller
     public function deleteAll()
     {
         try {
-            auth()->user()->notifications()->delete();
+            auth('api')->user()->notifications()->delete();
             return Helper::jsonResponse(true, 'All notifications deleted successfully.', 200);
         } catch (Exception $e) {
             Log::error('NotificationController::deleteAll Error: ' . $e->getMessage());

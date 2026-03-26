@@ -10,9 +10,18 @@ use App\Http\Controllers\API\V1\CMS\HomePageController;
 use App\Http\Controllers\API\V1\CMS\HowItWorkPageController as APIHowItWorkPageController;
 use App\Http\Controllers\API\V1\CMS\FindClergyPageController as APIFindClergyPageController;
 use App\Http\Controllers\API\V1\CMS\OnboardingController;
+use App\Http\Controllers\API\V1\CMS\FaqPageController as APIFaqPageController;
 use App\Http\Controllers\API\V1\QuestionController;
 use App\Http\Controllers\API\V1\DashboardController;
+use App\Http\Controllers\API\V1\Clergy\LiveSessionRequestController as ClergyLiveSessionRequestController;
+use App\Http\Controllers\API\V1\Clergy\PrayerRequestController as ClergyPrayerRequestController;
+use App\Http\Controllers\API\V1\Clergy\LiveSessionVideoController;
+use App\Http\Controllers\API\V1\Seeker\LiveSessionRequestController as SeekerLiveSessionRequestController;
+use App\Http\Controllers\API\V1\Seeker\PrayerRequestController as SeekerPrayerRequestController;
+use App\Http\Controllers\API\V1\Chat\ChatController;
 use App\Http\Controllers\API\V1\User\ClergyController;
+use App\Http\Controllers\API\V1\User\Faqs\UserFaqController;
+use App\Http\Controllers\API\V1\User\NewsletterController;
 use App\Http\Controllers\API\V1\User\NotificationController;
 use App\Http\Controllers\API\V1\User\UserContactSupportController;
 use Illuminate\Support\Facades\Route;
@@ -38,13 +47,13 @@ Route::group(['middleware' => 'auth:api'], function ($router) {
     Route::get('/me', [UserController::class, 'me']);
     Route::post('/update-profile', [UserController::class, 'updateProfile']);
     Route::post('/update-password', [UserController::class, 'changePassword']);
+    Route::post('/clergy-profile-update', [UserController::class, 'ClergyProfileUpdate']);
 });
 
 // only for user
 Route::group(['middleware' => ['auth:api', 'check_is_user']], function ($router) {
     // route for dashboard data
     Route::get('/dashboard-data/home', [DashboardController::class, 'dashboardData']);
-    
 
     // Notifications route
     Route::get('/my-notifications', [NotificationController::class, 'index']);
@@ -52,6 +61,52 @@ Route::group(['middleware' => ['auth:api', 'check_is_user']], function ($router)
     Route::delete('/my-notifications-delete/{id}', [NotificationController::class, 'delete']);
     Route::delete('/my-notifications-delete-all', [NotificationController::class, 'deleteAll']);
 });
+
+// Seeker: Prayer requests & Live session requests
+Route::group(['middleware' => ['auth:api', 'check_is_seeker'], 'prefix' => 'seeker'], function ($router) {
+    Route::get('/prayer-requests', [SeekerPrayerRequestController::class, 'index']);
+    Route::get('/prayer-requests/{id}', [SeekerPrayerRequestController::class, 'show']);
+    Route::post('/prayer-requests', [SeekerPrayerRequestController::class, 'store']);
+
+    Route::get('/live-session-requests', [SeekerLiveSessionRequestController::class, 'index']);
+    Route::get('/live-session-requests/{id}', [SeekerLiveSessionRequestController::class, 'show']);
+    Route::post('/live-session-requests', [SeekerLiveSessionRequestController::class, 'store']);
+});
+
+// Clergy: Prayer requests & Live session requests
+Route::group(['middleware' => ['auth:api', 'check_is_clergy'], 'prefix' => 'clergy'], function ($router) {
+    Route::get('/prayer-requests', [ClergyPrayerRequestController::class, 'index']);
+    Route::get('/prayer-requests/{id}', [ClergyPrayerRequestController::class, 'show']);
+    Route::post('/prayer-requests/reply/{id}', [ClergyPrayerRequestController::class, 'reply']);
+
+    Route::get('/live-session-requests', [ClergyLiveSessionRequestController::class, 'index']);
+    Route::get('/live-session-requests/{id}', [ClergyLiveSessionRequestController::class, 'show']);
+    Route::post('/live-session-requests/schedule/{id}', [ClergyLiveSessionRequestController::class, 'schedule']);
+
+    // Video session start/complete from chat.
+    Route::post('/live-session-requests/{id}/video/start', [LiveSessionVideoController::class, 'start']);
+    Route::post('/live-session-requests/{id}/video/complete', [LiveSessionVideoController::class, 'complete']);
+});
+
+// Chat system
+Route::group(['middleware' => ['auth:api']], function ($router) {
+    Route::prefix('chats')->group(function () use ($router) {
+        Route::get('/', [ChatController::class, 'rooms']);
+        Route::get('/{room}', [ChatController::class, 'show']);
+        Route::get('/messages/{room}', [ChatController::class, 'messages']);
+        Route::post('/send-messages/{room}', [ChatController::class, 'sendMessage']);
+        Route::post('/presence/{room}', [ChatController::class, 'presence']);
+        Route::post('/block/{room}', [ChatController::class, 'block']);
+    });
+});
+
+// FAQ for users (public)
+Route::get('/faqs', [UserFaqController::class, 'index']);
+Route::get('/faqs-categories', [UserFaqController::class, 'categories']);
+Route::get('/faqs-categories/{id}', [UserFaqController::class, 'showCategory']);
+
+// Newsletter (public)
+Route::post('/newsletter/subscribe', [NewsletterController::class, 'subscribe']);
 
 // route for clergy 
 Route::apiResource('clergy', ClergyController::class)->only(['index', 'show']);
@@ -87,6 +142,11 @@ Route::group(['prefix' => 'cms/home-page'], function () {
 // route for find clergy page
 Route::group(['prefix' => 'cms/find-clergy-page'], function () {
     Route::get('/hero-section', [APIFindClergyPageController::class, 'getHeroSection']);
+});
+
+// route for faq page
+Route::group(['prefix' => 'cms/faq-page'], function () {
+    Route::get('/hero-section', [APIFaqPageController::class, 'getHeroSection']);
 });
  
 // route for how it work page

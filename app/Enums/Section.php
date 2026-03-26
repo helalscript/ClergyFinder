@@ -66,6 +66,9 @@ enum Section: string
     // ===== Find Clergy Page Sections =====
     case FindClergyHeroSection = 'find_clergy_hero_section';
 
+    // ===== FAQ Page Sections =====
+    case FaqPageHeroSection = 'faq_page_hero_section';
+
 }
 
 

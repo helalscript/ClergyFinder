@@ -19,6 +19,8 @@ enum Page: string
 
     case FindClergyPage = 'find_clergy_page';
 
+    case FaqPage = 'faq_page';
+
 }
 
 

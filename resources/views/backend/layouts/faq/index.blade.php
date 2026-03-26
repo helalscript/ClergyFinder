@@ -62,6 +62,7 @@
                                     <thead>
                                         <tr>
                                             <th scope="col">#</th>
+                                            <th scope="col">Category</th>
                                             <th scope="col">Question</th>
                                             <th scope="col">Answer</th>
                                             <th scope="col">Status</th>
@@ -110,13 +111,13 @@
 @endsection
 
 @push('scripts')
-    <script src="{{ asset('backend') }}/admin/assets/datatables/data-tables.min.js"></script>
+    <script src="{{ asset('backend/admin/assets/datatables/data-tables.min.js') }}"></script>
     <!--buttons dataTables-->
-    <script src="{{ asset('backend') }}/admin/assets/datatables/datatables.buttons.min.js"></script>
-    <script src="{{ asset('backend') }}/admin/assets/datatables/jszip.min.js"></script>
-    <script src="{{ asset('backend') }}/admin/assets/datatables/pdfmake.min.js"></script>
-    <script src="{{ asset('backend') }}/admin/assets/datatables/buttons.html5.min.js"></script>
-    <script src="{{ asset('backend') }}/admin/assets/datatables/buttons.print.min.js"></script>
+    <script src="{{ asset('backend/admin/assets/datatables/datatables.buttons.min.js') }}"></script>
+    <script src="{{ asset('backend/admin/assets/datatables/jszip.min.js') }}"></script>
+    <script src="{{ asset('backend/admin/assets/datatables/pdfmake.min.js') }}"></script>
+    <script src="{{ asset('backend/admin/assets/datatables/buttons.html5.min.js') }}"></script>
+    <script src="{{ asset('backend/admin/assets/datatables/buttons.print.min.js') }}"></script>
 
     <script>
         $(document).ready(function() {
@@ -157,6 +158,19 @@
                         name: 'DT_RowIndex',
                         orderable: false,
                         searchable: false
+                    },
+                    {
+                        data: 'category',
+                        name: 'category',
+                        orderable: true,
+                        searchable: true,
+                        render: function(data, type, row) {
+                            if (data.length > 50) {
+                                return data.substring(0, 50) + '...';
+                            } else {
+                                return data;
+                            }
+                        }
                     },
                     {
                         data: 'question',
