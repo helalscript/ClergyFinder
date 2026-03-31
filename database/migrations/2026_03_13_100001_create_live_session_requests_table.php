@@ -11,7 +11,8 @@ return new class extends Migration
         Schema::create('live_session_requests', function (Blueprint $table) {
             $table->id();
             $table->foreignId('seeker_id')->constrained('users')->cascadeOnDelete();
-            $table->foreignId('clergy_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('clergy_id')->nullable()->constrained('clergies')->nullOnDelete();
+            $table->foreignId('clergy_user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->text('message');
             $table->string('meeting_link')->nullable();
             $table->dateTime('scheduled_time')->nullable();

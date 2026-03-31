@@ -23,7 +23,7 @@ class PrayerRequestController extends Controller
         }
 
         $requests = PrayerRequest::pending()
-            ->with(['seeker:id,name,email'])
+            ->with(['seeker:id,name,email,avatar'])
             ->latest()
             ->paginate($per_page);
 
@@ -37,7 +37,9 @@ class PrayerRequestController extends Controller
             return Helper::jsonErrorResponse('You are not allowed to receive prayer requests', 403);
         }
 
-        $request = PrayerRequest::with(['seeker:id,name,email'])->find($id);
+        $request = PrayerRequest::with(['seeker:id,name,email'])
+        ->where('clergy_id', $user->clergy->id)
+        ->find($id);
 
         if (!$request) {
             return Helper::jsonResponse(false, 'Prayer request not found', 404);

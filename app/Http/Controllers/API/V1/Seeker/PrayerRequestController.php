@@ -12,6 +12,7 @@ use App\Models\PrayerRequest;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
@@ -41,8 +42,14 @@ class PrayerRequestController extends Controller
     public function store(StorePrayerRequestRequest $request): JsonResponse
     {
         try {
+            DB::beginTransaction();
+            $clergy = Clergy::find($request->validated('clergy_id'));
+            if (!$clergy) {
+                return Helper::jsonErrorResponse('Clergy not found', 404);
+            }
             $prayerRequest = PrayerRequest::create([
-                'clergy_id' => $request->validated('clergy_id'),
+                'clergy_id' => $clergy->id,
+                'clergy_user_id' => $clergy->user_id,
                 'seeker_id' => auth('api')->id(),
                 'message' => $request->validated('message'),
                 'status' => 'pending',
@@ -54,9 +61,11 @@ class PrayerRequestController extends Controller
                 Mail::to($clergyUsers->user->email)->queue(new NewPrayerRequestToClergy($prayerRequest->fresh()));
                 $clergyUsers->user->notify(new NewPrayerRequestToClergyInApp($prayerRequest->fresh()));
             }
+            DB::commit();
 
             return Helper::jsonResponse(true, 'Prayer request submitted successfully', 201);
         } catch (Exception $e) {
+            DB::rollBack();
             Log::error('PrayerRequestController::store '.$e->getMessage());
 
             return Helper::jsonErrorResponse('Failed to submit prayer request', 500);

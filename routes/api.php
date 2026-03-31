@@ -32,7 +32,7 @@ Route::group(['middleware' => 'guest:api'], function ($router) {
     Route::post('/verify-email', [RegisterController::class, 'VerifyEmail']);
     Route::post('/resend-otp', [RegisterController::class, 'ResendOtp']);
     // login
-    // Route::post('login', [LoginController::class, 'login']);
+    Route::post('login', [LoginController::class, 'login']);
     // forgot password
     Route::post('/forget-password', [ResetPasswordController::class, 'forgotPassword']);
     Route::post('/verify-otp', [ResetPasswordController::class, 'VerifyOTP']);
@@ -40,7 +40,6 @@ Route::group(['middleware' => 'guest:api'], function ($router) {
     // social login
     Route::post('/social-login', [SocialLoginController::class, 'SocialLogin']);
 });
-Route::post('login', [LoginController::class, 'Login']);
 
 Route::group(['middleware' => 'auth:api'], function ($router) {
     Route::get('/refresh-token', [LoginController::class, 'refreshToken']);

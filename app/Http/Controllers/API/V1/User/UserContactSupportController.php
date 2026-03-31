@@ -23,16 +23,10 @@ class UserContactSupportController extends Controller
     public function store(Request $request)
     {
         $validatedData = $request->validate([
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'full_name' => 'nullable|string|max:255', // Optional field
-            'company_name' => 'nullable|string|max:255',
-            'linkedin_profile' => 'nullable|url|max:255',
+            'full_name' => 'required|string|max:255',
             'email' => 'required|email|max:255',
-            'phone' => 'required|string|max:20',
             'message' => 'required|string|max:10000',
             // 'file' => 'nullable|file|mimes:jpeg,jpg,png,gif,webp,pdf,txt,doc,docx|max:5120', // 2MB max file size
-            // 'type' => 'nullable|in:employ,job_seeker,contact',
         ]);
         try {
             $this->userContactSupportService->store($validatedData);
