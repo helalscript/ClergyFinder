@@ -53,6 +53,8 @@ class RegisterController extends Controller
                 })
                 ->first();
 
+            DB::beginTransaction();
+
             if ($existingUser && $existingUser->trashed()) {
                 // Restore the soft-deleted user
                 $existingUser->restore();
@@ -67,7 +69,8 @@ class RegisterController extends Controller
                 ]);
                 $user = $existingUser;
             } else {
-                $userData = [
+                // Create a brand new user
+                $user = User::create([
                     'name' => $request->input('name'),
                     'email' => $request->input('email'),
                     'phone' => $request->input('phone') ?? null,
@@ -75,33 +78,34 @@ class RegisterController extends Controller
                     'role' => $request->input('role'),
                     'otp' => $otp,
                     'otp_expires_at' => $otpExpiresAt,
-                ];
+                ]);
             }
+
+            // Create additional clergy profile only after we have $user->id
             if ($request->input('role') === 'clergy') {
-                $userData['clergy'] = [
+                Clergy::create([
                     'user_id' => $user->id,
                     'religion' => $request->input('religion'),
                     'bio' => $request->input('bio'),
                     'address' => $request->input('address'),
                     'city' => $request->input('city'),
-                ];
-                Clergy::create($userData['clergy']);
+                ]);
             }
 
-            DB::beginTransaction();
-
-            if (!isset($user)) {
-                $user = User::create($userData);
+            try {
+                Mail::to($user->email)->send(new OtpMail($otp, $user, 'Verify Your Email Address'));
+            } catch (Exception $e) {
+                DB::rollBack();
+                Log::error('RegisterController::register' . $e->getMessage());
+                return Helper::jsonErrorResponse('Failed to send verification email. Please try again later.', 500);
             }
-
-            // Mail::to($user->email)->send(new OtpMail($otp, $user, 'Verify Your Email Address'));
 
             DB::commit();
             return Helper::jsonResponse(true, 'A verification email has been successfully sent to your email address. Please check your inbox to complete the verification.', 200);
         } catch (Exception $e) {
             DB::rollBack();
             Log::error('RegisterController::register' . $e->getMessage());
-            return Helper::jsonErrorResponse('Failed to send verification email. Please try again later.', 500);
+            return Helper::jsonErrorResponse('Something went wrong'.$e->getMessage(), 500);
         }
     }
 
