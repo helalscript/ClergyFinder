@@ -6,11 +6,12 @@ use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\StoreLiveSessionRequestRequest;
 use App\Mail\NewLiveSessionRequestToClergy;
-use App\Notifications\Chat\NewLiveSessionRequestToClergyInApp;
 use App\Models\Clergy;
 use App\Models\LiveSessionRequest;
+use App\Notifications\Chat\NewLiveSessionRequestToClergyInApp;
 use Exception;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
@@ -56,24 +57,30 @@ class LiveSessionRequestController extends Controller
     public function store(StoreLiveSessionRequestRequest $request): JsonResponse
     {
         try {
+            DB::beginTransaction();
+            $clergy = Clergy::with('user:id,name,email')->find($request->validated('clergy_id'));
+            if (! $clergy) {
+                return Helper::jsonErrorResponse('Clergy not found', 404);
+            }
             $liveSessionRequest = LiveSessionRequest::create([
                 'clergy_id' => $request->validated('clergy_id'),
+                'clergy_user_id' => $clergy->user_id,
                 'seeker_id' => auth('api')->id(),
                 'message' => $request->validated('message'),
                 'status' => 'pending',
             ]);
 
-            $clergyUsers = Clergy::with('user:id,name,email')->find($request->validated('clergy_id'));
-
-            if ($clergyUsers) {
-                Mail::to($clergyUsers->user->email)->queue(new NewLiveSessionRequestToClergy($liveSessionRequest->fresh()));
-                $clergyUsers->user->notify(new NewLiveSessionRequestToClergyInApp($liveSessionRequest->fresh()));
+            if ($clergy) {
+                Mail::to($clergy->user->email)->queue(new NewLiveSessionRequestToClergy($liveSessionRequest->fresh()));
+                $clergy->user->notify(new NewLiveSessionRequestToClergyInApp($liveSessionRequest->fresh()));
             } else {
                 return Helper::jsonResponse(false, 'Clergy not found', 404);
             }
 
+            DB::commit();
             return Helper::jsonResponse(true, 'Live session request submitted successfully', 201);
         } catch (Exception $e) {
+            DB::rollBack();
             Log::error('LiveSessionRequestController::store '.$e->getMessage());
 
             return Helper::jsonErrorResponse('Failed to submit live session request', 500);

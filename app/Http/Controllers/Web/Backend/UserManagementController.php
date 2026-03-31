@@ -90,6 +90,7 @@ class UserManagementController extends Controller
             }
 
             $validatedUser['password'] = bcrypt($validatedUser['password']);
+            $validatedUser['email_verified_at'] = now();
             $validatedUser['role'] = 'clergy';
             $validatedUser['status'] = 'active';
 
@@ -294,6 +295,7 @@ class UserManagementController extends Controller
             }
             $validatedUser['password'] = bcrypt($validatedUser['password']);
             $validatedUser['role'] = 'seeker';
+            $validatedUser['email_verified_at'] = now();
             $validatedUser['status'] = 'active';
 
             User::create($validatedUser);

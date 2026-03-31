@@ -13,14 +13,9 @@ return new class extends Migration {
         Schema::create('contact_us', function (Blueprint $table) {
             $table->id();
             $table->string('type')->nullable();
-            $table->string('first_name')->nullable();
-            $table->string('last_name')->nullable();
             $table->string('full_name')->nullable();
-            $table->string('company_name')->nullable();
-            $table->string('linkedin_profile')->nullable();
             $table->string('file')->nullable();
             $table->string('email')->nullable();
-            $table->string('phone')->nullable();
             $table->longText('message')->nullable();
             $table->string('ip_address')->nullable();
             $table->boolean('is_read')->default(false);
