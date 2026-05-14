@@ -9,16 +9,17 @@
  */
 
 use App\Http\Controllers\Web\Backend\BlogController;
-use App\Http\Controllers\Web\Backend\CMS\FaqController;
+use App\Http\Controllers\Web\Backend\ChatController;
 use App\Http\Controllers\Web\Backend\CMS\FaqCategoryController;
+use App\Http\Controllers\Web\Backend\CMS\FaqController;
 use App\Http\Controllers\Web\Backend\CMS\HomePageSocialLinkContainerController;
 use App\Http\Controllers\Web\Backend\ContactMessageController;
+use App\Http\Controllers\Web\Backend\DashboardController;
 use App\Http\Controllers\Web\Backend\DynamicPageController;
 use App\Http\Controllers\Web\Backend\LiveSessionRequestController;
-use App\Http\Controllers\Web\Backend\PrayerRequestController;
-use App\Http\Controllers\Web\Backend\ChatController;
 use App\Http\Controllers\Web\Backend\NewsletterController;
 use App\Http\Controllers\Web\Backend\NotificationController;
+use App\Http\Controllers\Web\Backend\PrayerRequestController;
 use App\Http\Controllers\Web\Backend\ProfileController;
 use App\Http\Controllers\Web\Backend\SystemSettingController;
 use App\Http\Controllers\Web\Backend\UserController;
@@ -28,9 +29,7 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['auth:web', 'role_check'])->prefix('admin')->group(function () {
 
     // Routes for managing guests
-    Route::get('/', function () {
-        return view('backend.layouts.dashboard.index');
-    })->name('admin.dashboard');
+    Route::get('/', [DashboardController::class, 'index'])->name('admin.dashboard');
 
     Route::get('settings-profile', [ProfileController::class, 'index'])->name('profile_settings.index');
     Route::post('settings-profile', [ProfileController::class, 'update'])->name('profile_settings.update');
@@ -94,7 +93,6 @@ Route::middleware(['auth:web', 'role_check'])->prefix('admin')->group(function (
     Route::resource('/blogs', BlogController::class)->names('blogs');
     Route::post('/blogs/status/{id}', [BlogController::class, 'status'])->name('blogs.status');
     Route::post('/blogs/update-container', [BlogController::class, 'updateContainer'])->name('blogs.update_container');
-
 
     // Routes for NotificationController
     Route::post('/notifications/mark-as-read', [NotificationController::class, 'markAsRead'])->name('notification.read');
