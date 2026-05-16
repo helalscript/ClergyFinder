@@ -4,78 +4,123 @@ namespace App\Http\Controllers\API\V1\Clergy;
 
 use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Api\ScheduleLiveSessionRequestRequest;
-use App\Mail\LiveSessionScheduledToSeeker;
-use App\Notifications\Chat\LiveSessionScheduledToSeekerInApp;
+use App\Http\Requests\Api\LiveAvailabilityRequest;
 use App\Models\LiveSessionRequest;
-use App\Services\Chat\ChatRoomService;
+use App\Notifications\Chat\ClergyLiveStepOutToSeekerInApp;
+use App\Services\LiveSessionQueueService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Mail;
 
 class LiveSessionRequestController extends Controller
 {
-    public function index(): JsonResponse
+    public function index(LiveSessionQueueService $queueService): JsonResponse
     {
-        $per_page = request()->has('per_page') ? request()->per_page : 15;
         $user = auth('api')->user();
-        if (!$user->clergy || !$user->clergy->is_live_session) {
-            return Helper::jsonErrorResponse('You are not allowed to receive live session requests', 403);
+        if (! $user->clergy || ! $user->clergy->is_live_session) {
+            return Helper::jsonErrorResponse('You are not allowed to manage live sessions', 403);
         }
 
-        $requests = LiveSessionRequest::with(['seeker:id,name,email'])
+        $tab = request()->query('tab', 'queue');
+        $per_page = request()->has('per_page') ? request()->per_page : 15;
+
+        if ($tab === 'queue') {
+            $snapshot = $queueService->queueSnapshotForClergy($user->clergy);
+
+            return Helper::jsonResponse(true, 'Live session queue snapshot', 200, $snapshot);
+        }
+
+        $requests = LiveSessionRequest::where('clergy_id', $user->clergy->id)
+            ->with(['seeker:id,name,email,avatar'])
             ->latest()
             ->paginate($per_page);
 
-        return Helper::jsonResponse(true, 'Live session requests fetched successfully', 200, $requests, true);
+        return Helper::jsonResponse(true, 'Live session history fetched successfully', 200, $requests, true);
     }
 
     public function show(int $id): JsonResponse
     {
         $user = auth('api')->user();
-        if (!$user->clergy || !$user->clergy->is_live_session) {
-            return Helper::jsonErrorResponse('You are not allowed to receive live session requests', 403);
+        if (! $user->clergy || ! $user->clergy->is_live_session) {
+            return Helper::jsonErrorResponse('You are not allowed to view live sessions', 403);
         }
 
-        $request = LiveSessionRequest::with(['seeker:id,name,email'])->find($id);
+        $request = LiveSessionRequest::with(['seeker:id,name,email,avatar'])
+            ->where('clergy_id', $user->clergy->id)
+            ->find($id);
 
-        if (!$request) {
-            return Helper::jsonResponse(false, 'Live session request not found', 404);
+        if (! $request) {
+            return Helper::jsonResponse(false, 'Live session record not found', 404);
         }
 
-        return Helper::jsonResponse(true, 'Live session request fetched successfully', 200, $request);
+        return Helper::jsonResponse(true, 'Live session record fetched successfully', 200, $request);
     }
 
-    public function schedule(ScheduleLiveSessionRequestRequest $request, int $id, ChatRoomService $chatRoomService): JsonResponse
+    public function updateLiveAvailability(LiveAvailabilityRequest $request): JsonResponse
     {
         $user = auth('api')->user();
-        if (!$user->clergy || !$user->clergy->is_live_session) {
-            return Helper::jsonErrorResponse('You are not allowed to schedule live sessions', 403);
+        if (! $user->clergy || ! $user->clergy->is_live_session) {
+            return Helper::jsonErrorResponse('You are not allowed to update availability', 403);
         }
 
-        $liveSessionRequest = LiveSessionRequest::where('status', 'pending')->find($id);
+        $clergy = $user->clergy;
+        $wasAvailable = (bool) $clergy->is_available_for_live;
 
-        if (!$liveSessionRequest) {
-            return Helper::jsonResponse(false, 'Live session request not found or already scheduled', 404);
-        }
-
-        $liveSessionRequest->update([
-            'clergy_id' => $user->id,
-            'meeting_link' => $request->validated('meeting_link'),
-            'scheduled_time' => $request->validated('scheduled_time'),
-            'status' => 'scheduled',
+        $clergy->update([
+            'is_available_for_live' => $request->boolean('is_available_for_live'),
+            'live_unavailable_message' => $request->input('live_unavailable_message'),
         ]);
 
-        $liveSessionRequest->load(['seeker']);
-        Mail::to($liveSessionRequest->seeker->email)->send(new LiveSessionScheduledToSeeker($liveSessionRequest));
+        if ($wasAvailable && ! $clergy->is_available_for_live) {
+            $waiting = LiveSessionRequest::query()
+                ->where('clergy_id', $clergy->id)
+                ->whereIn('status', ['queued', 'awaiting_confirm', 'ready'])
+                ->with('seeker')
+                ->get();
 
-        $freshRequest = $liveSessionRequest->fresh();
-        $chatRoom = $chatRoomService->createLiveSessionChatRoom($freshRequest);
-        $liveSessionRequest->seeker->notify(new LiveSessionScheduledToSeekerInApp($freshRequest, $chatRoom));
+            foreach ($waiting as $row) {
+                if ($row->seeker) {
+                    $row->seeker->notify(new ClergyLiveStepOutToSeekerInApp(
+                        $clergy->fresh(),
+                        $request->input('live_unavailable_message')
+                    ));
+                }
+            }
+        }
 
-        $freshRequest->load(['seeker:id,name,email']);
+        if ($clergy->is_available_for_live) {
+            $clergy->update(['live_unavailable_message' => null]);
+        }
 
-        $freshRequest->setAttribute('chat_room_id', $chatRoom->id);
+        return Helper::jsonResponse(true, 'Live availability updated', 200, $clergy->fresh());
+    }
 
-        return Helper::jsonResponse(true, 'Live session scheduled successfully', 200, $freshRequest);
+    public function notifyNextSeeker(LiveSessionQueueService $queueService): JsonResponse
+    {
+        $user = auth('api')->user();
+        if (! $user->clergy || ! $user->clergy->is_live_session) {
+            return Helper::jsonErrorResponse('You are not allowed to manage live sessions', 403);
+        }
+
+        if (! $user->clergy->is_available_for_live) {
+            return Helper::jsonErrorResponse('Turn on live availability before notifying seekers.', 422);
+        }
+
+        try {
+            $result = $queueService->notifyNextSeeker($user->clergy);
+
+            $message = $result['action'] === 'reminded'
+                ? 'Reminder sent to the seeker waiting to confirm.'
+                : 'Next seeker has been notified to confirm they are ready.';
+
+            return Helper::jsonResponse(true, $message, 200, $result);
+        } catch (\RuntimeException $e) {
+            $msg = match ($e->getMessage()) {
+                'session_in_progress' => 'A seeker is already ready or in a live call. Start or complete it first.',
+                'queue_empty' => 'No seekers are waiting in your queue.',
+                default => $e->getMessage(),
+            };
+            $code = $e->getMessage() === 'queue_empty' ? 404 : 409;
+
+            return Helper::jsonErrorResponse($msg, $code);
+        }
     }
 }
