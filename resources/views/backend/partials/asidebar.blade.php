@@ -17,6 +17,13 @@ $systemSetting = App\Models\SystemSetting::first();
 
     <aside id="layout-menu" class="layout-menu menu-vertical menu active" data-simplebar
         style="height: calc(100vh - 100px)">
+        @php
+            try {
+                $pendingClergyVerificationCount = \App\Models\Clergy::where('registration_status', 'pending_admin')->count();
+            } catch (\Throwable $e) {
+                $pendingClergyVerificationCount = 0;
+            }
+        @endphp
         <ul class="menu-inner">
             <li class="menu-title small text-uppercase">
                 <span class="menu-title-text">MAIN</span>
@@ -35,7 +42,7 @@ $systemSetting = App\Models\SystemSetting::first();
             </li>
 
             <!-- Users Menu Item -->
-            <li class="menu-item {{ request()->routeIs('user_management.*') ? 'open' : '' }}">
+            <li class="menu-item {{ request()->routeIs('user_management.*', 'admin.clergy_verification.*') ? 'open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle active">
                     <span class="material-symbols-outlined menu-icon">group</span>
                     <span class="title">Users</span>
@@ -51,6 +58,15 @@ $systemSetting = App\Models\SystemSetting::first();
                         <a href="{{ route('user_management.seeker.index') }}"
                             class="menu-link {{ request()->routeIs('user_management.seeker.*') ? 'active' : '' }}">
                             Seeker
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="{{ route('admin.clergy_verification.index') }}"
+                            class="menu-link {{ request()->routeIs('admin.clergy_verification.*') ? 'active' : '' }}">
+                            Clergy verification
+                            @if (($pendingClergyVerificationCount ?? 0) > 0)
+                                <span class="badge rounded-pill text-bg-danger ms-1">{{ $pendingClergyVerificationCount }}</span>
+                            @endif
                         </a>
                     </li>
                 </ul>
