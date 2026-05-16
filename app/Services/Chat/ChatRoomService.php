@@ -11,6 +11,11 @@ class ChatRoomService
 {
     public function createPrayerChatRoom(PrayerRequest $prayerRequest): ChatRoom
     {
+        $clergyUserId = $prayerRequest->clergy_user_id ?: $prayerRequest->clergyProfile?->user_id;
+        if (! $clergyUserId) {
+            throw new \InvalidArgumentException('Prayer request is missing clergy user.');
+        }
+
         $room = ChatRoom::firstOrCreate(
             [
                 'type' => 'prayer',
@@ -18,7 +23,7 @@ class ChatRoomService
             ],
             [
                 'seeker_id' => $prayerRequest->seeker_id,
-                'clergy_id' => $prayerRequest->clergy_id,
+                'clergy_id' => $clergyUserId,
                 'status' => 'active',
                 'video_status' => 'not_started',
             ]
@@ -33,13 +38,15 @@ class ChatRoomService
                 'metadata' => null,
             ]);
 
-            ChatMessage::create([
-                'chat_room_id' => $room->id,
-                'sender_type' => 'clergy',
-                'sender_id' => $prayerRequest->clergy_id,
-                'body' => $prayerRequest->clergy_reply,
-                'metadata' => null,
-            ]);
+            if (! empty($prayerRequest->clergy_reply)) {
+                ChatMessage::create([
+                    'chat_room_id' => $room->id,
+                    'sender_type' => 'clergy',
+                    'sender_id' => $clergyUserId,
+                    'body' => $prayerRequest->clergy_reply,
+                    'metadata' => null,
+                ]);
+            }
         }
 
         return $room;
@@ -47,6 +54,11 @@ class ChatRoomService
 
     public function createLiveSessionChatRoom(LiveSessionRequest $liveSessionRequest): ChatRoom
     {
+        $clergyUserId = $liveSessionRequest->clergy_user_id ?: $liveSessionRequest->clergyProfile?->user_id;
+        if (! $clergyUserId) {
+            throw new \InvalidArgumentException('Live session request is missing clergy user.');
+        }
+
         $room = ChatRoom::firstOrCreate(
             [
                 'type' => 'live_session',
@@ -54,7 +66,7 @@ class ChatRoomService
             ],
             [
                 'seeker_id' => $liveSessionRequest->seeker_id,
-                'clergy_id' => $liveSessionRequest->clergy_id,
+                'clergy_id' => $clergyUserId,
                 'status' => 'active',
                 'video_status' => 'not_started',
             ]
@@ -95,4 +107,3 @@ class ChatRoomService
         ]);
     }
 }
-

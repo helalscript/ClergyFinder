@@ -30,6 +30,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'check_is_user' => \App\Http\Middleware\CheckIsUser::class,
             'check_is_seeker' => \App\Http\Middleware\CheckIsSeeker::class,
             'check_is_clergy' => \App\Http\Middleware\CheckIsClergy::class,
+            'clergy_approved_app' => \App\Http\Middleware\EnsureClergyApprovedForApp::class,
+            'check_is_admin' => \App\Http\Middleware\CheckIsAdmin::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

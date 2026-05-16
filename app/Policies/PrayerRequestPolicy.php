@@ -21,7 +21,8 @@ class PrayerRequestPolicy
             return $prayerRequest->seeker_id === $user->id;
         }
         if ($user->role === 'clergy') {
-            return $user->clergy?->is_prayer_request === true;
+            return $user->clergy !== null
+                && (int) $prayerRequest->clergy_id === (int) $user->clergy->id;
         }
         return false;
     }
@@ -33,7 +34,8 @@ class PrayerRequestPolicy
 
     public function update(User $user, PrayerRequest $prayerRequest): bool
     {
-        return $user->role === 'admin' || ($user->role === 'clergy' && $user->clergy?->is_prayer_request);
+        return $user->role === 'admin' || ($user->role === 'clergy' && $user->clergy?->is_prayer_request
+            && (int) $prayerRequest->clergy_id === (int) $user->clergy->id);
     }
 
     public function delete(User $user, PrayerRequest $prayerRequest): bool
