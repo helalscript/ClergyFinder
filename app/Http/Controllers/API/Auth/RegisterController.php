@@ -38,6 +38,20 @@ class RegisterController extends Controller
             'role' => 'required|in:clergy,seeker',
         ]);
 
+        if ($request->input('role') === 'clergy') {
+            $request->validate([
+                'religion' => 'nullable|string|max:255',
+                'denomination' => 'nullable|string|max:255',
+                'bio' => 'nullable|string',
+                'address' => 'nullable|string|max:255',
+                'city' => 'nullable|string|max:255',
+                'preferred_language' => 'nullable',
+                'specialities' => 'nullable',
+                'credential_documents' => 'nullable|array',
+                'credential_documents.*' => 'string|max:2048',
+            ]);
+        }
+
         try {
             $otp = 1234; // For testing purposes, you can use a fixed OTP. In production, generate a random OTP.
             // $otp = rand(1000, 9999);
@@ -83,12 +97,40 @@ class RegisterController extends Controller
 
             // Create additional clergy profile only after we have $user->id
             if ($request->input('role') === 'clergy') {
+                $preferredLanguage = $request->input('preferred_language');
+                if (is_string($preferredLanguage)) {
+                    $preferredLanguage = array_values(array_filter(array_map('trim', explode(',', $preferredLanguage))));
+                } elseif (! is_array($preferredLanguage)) {
+                    $preferredLanguage = null;
+                }
+
+                $specialities = $request->input('specialities');
+                if (is_string($specialities)) {
+                    $specialities = array_values(array_filter(array_map('trim', explode(',', $specialities))));
+                } elseif (! is_array($specialities)) {
+                    $specialities = null;
+                }
+
+                $credentialDocuments = $request->input('credential_documents');
+                if (is_string($credentialDocuments)) {
+                    $decoded = json_decode($credentialDocuments, true);
+                    $credentialDocuments = is_array($decoded) ? $decoded : array_values(array_filter([$credentialDocuments]));
+                } elseif (! is_array($credentialDocuments)) {
+                    $credentialDocuments = null;
+                }
+
                 Clergy::create([
                     'user_id' => $user->id,
                     'religion' => $request->input('religion'),
+                    'denomination' => $request->input('denomination'),
                     'bio' => $request->input('bio'),
                     'address' => $request->input('address'),
                     'city' => $request->input('city'),
+                    'preferred_language' => $preferredLanguage,
+                    'specialities' => $specialities,
+                    'credential_documents' => $credentialDocuments,
+                    'registration_status' => 'pending_admin',
+                    'status' => 'active',
                 ]);
             }
 
