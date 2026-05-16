@@ -12,6 +12,7 @@ use App\Models\ChatBlock;
 use App\Models\ChatMessage;
 use App\Models\ChatPresence;
 use App\Models\ChatRoom;
+use App\Models\PrayerRequest;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
@@ -170,6 +171,13 @@ class ChatController extends Controller
 
         if ($this->isBlocked($room, (int) $user->id, (int) $otherId)) {
             return Helper::jsonErrorResponse('You are blocked in this chat', 403);
+        }
+
+        if ($room->type === 'prayer' && $room->prayer_request_id) {
+            $prayer = PrayerRequest::find($room->prayer_request_id);
+            if ($prayer && $prayer->status !== 'active') {
+                return Helper::jsonErrorResponse('This prayer conversation is not open for messaging.', 403);
+            }
         }
 
         $senderType = $user->role === 'seeker' ? 'seeker' : ($user->role === 'clergy' ? 'clergy' : 'system');

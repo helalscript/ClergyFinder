@@ -9,7 +9,6 @@ use App\Mail\NewPrayerRequestToClergy;
 use App\Notifications\Chat\NewPrayerRequestToClergyInApp;
 use App\Models\Clergy;
 use App\Models\PrayerRequest;
-use App\Models\User;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
@@ -21,16 +20,16 @@ class PrayerRequestController extends Controller
     public function index(): JsonResponse
     {
         $requests = PrayerRequest::where('seeker_id', auth('api')->id())
-            ->with(['clergy:id,name,email'])
+            ->with(['clergyUser:id,name,email'])
             ->latest()
             ->paginate(15);
 
-        return Helper::jsonResponse(true, 'Prayer requests fetched successfully', 200, $requests->items(), true, $requests);
+        return Helper::jsonResponse(true, 'Prayer requests fetched successfully', 200, $requests, true);
     }
 
     public function show(int $id): JsonResponse
     {
-        $request = PrayerRequest::where('seeker_id', auth('api')->id())->with(['clergy:id,name,email'])->find($id);
+        $request = PrayerRequest::where('seeker_id', auth('api')->id())->with(['clergyUser:id,name,email'])->find($id);
 
         if (! $request) {
             return Helper::jsonResponse(false, 'Prayer request not found', 404);
@@ -44,15 +43,19 @@ class PrayerRequestController extends Controller
         try {
             DB::beginTransaction();
             $clergy = Clergy::find($request->validated('clergy_id'));
-            if (!$clergy) {
+            if (! $clergy) {
                 return Helper::jsonErrorResponse('Clergy not found', 404);
             }
+            if ($clergy->registration_status !== 'approved' || $clergy->status !== 'active' || ! $clergy->is_prayer_request) {
+                return Helper::jsonErrorResponse('This clergy member is not accepting prayer requests.', 422);
+            }
+
             $prayerRequest = PrayerRequest::create([
                 'clergy_id' => $clergy->id,
                 'clergy_user_id' => $clergy->user_id,
                 'seeker_id' => auth('api')->id(),
                 'message' => $request->validated('message'),
-                'status' => 'pending',
+                'status' => 'pending_clergy',
             ]);
 
             $clergyUsers = Clergy::with('user:id,name,email')->find($request->validated('clergy_id'));

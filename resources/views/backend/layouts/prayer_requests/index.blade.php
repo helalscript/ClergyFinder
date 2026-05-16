@@ -30,8 +30,10 @@
                             </span>
                             <select class="form-select w-auto" id="statusFilter">
                                 <option value="">All statuses</option>
-                                <option value="pending">Pending</option>
-                                <option value="replied">Replied</option>
+                                <option value="pending_clergy">Pending (clergy)</option>
+                                <option value="active">Active chat</option>
+                                <option value="declined">Declined</option>
+                                <option value="closed">Closed</option>
                             </select>
                         </div>
 

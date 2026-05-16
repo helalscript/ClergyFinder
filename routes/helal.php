@@ -10,6 +10,7 @@
 
 use App\Http\Controllers\Web\Backend\BlogController;
 use App\Http\Controllers\Web\Backend\ChatController;
+use App\Http\Controllers\Web\Backend\ClergyVerificationController;
 use App\Http\Controllers\Web\Backend\CMS\FaqCategoryController;
 use App\Http\Controllers\Web\Backend\CMS\FaqController;
 use App\Http\Controllers\Web\Backend\CMS\HomePageSocialLinkContainerController;
@@ -76,6 +77,14 @@ Route::middleware(['auth:web', 'role_check'])->prefix('admin')->group(function (
         Route::put('/seeker/{id}', [UserManagementController::class, 'seekerUpdate'])->name('seeker.update');
         Route::delete('/seeker/{id}', [UserManagementController::class, 'seekerDestroy'])->name('seeker.destroy');
         Route::post('/seeker/status/{id}', [UserManagementController::class, 'seekerStatus'])->name('seeker.status');
+    });
+
+    // Pending clergy self-registration (credentials review, approve / reject)
+    Route::prefix('clergy-verification')->name('admin.clergy_verification.')->group(function () {
+        Route::get('/', [ClergyVerificationController::class, 'index'])->name('index');
+        Route::get('/{clergy}', [ClergyVerificationController::class, 'show'])->name('show')->whereNumber('clergy');
+        Route::post('/{clergy}/approve', [ClergyVerificationController::class, 'approve'])->name('approve')->whereNumber('clergy');
+        Route::post('/{clergy}/reject', [ClergyVerificationController::class, 'reject'])->name('reject')->whereNumber('clergy');
     });
 
     // Route for FaqController

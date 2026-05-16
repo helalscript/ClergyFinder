@@ -21,7 +21,8 @@ class LiveSessionRequestPolicy
             return $liveSessionRequest->seeker_id === $user->id;
         }
         if ($user->role === 'clergy') {
-            return $user->clergy?->is_live_session === true;
+            return $user->clergy !== null
+                && (int) $liveSessionRequest->clergy_id === (int) $user->clergy->id;
         }
         return false;
     }
@@ -33,7 +34,8 @@ class LiveSessionRequestPolicy
 
     public function update(User $user, LiveSessionRequest $liveSessionRequest): bool
     {
-        return $user->role === 'admin' || ($user->role === 'clergy' && $user->clergy?->is_live_session);
+        return $user->role === 'admin' || ($user->role === 'clergy' && $user->clergy?->is_live_session
+            && (int) $liveSessionRequest->clergy_id === (int) $user->clergy->id);
     }
 
     public function delete(User $user, LiveSessionRequest $liveSessionRequest): bool

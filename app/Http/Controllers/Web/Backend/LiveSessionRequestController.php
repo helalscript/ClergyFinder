@@ -14,16 +14,16 @@ class LiveSessionRequestController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $query = LiveSessionRequest::with(['seeker:id,name,email', 'clergy:id,name,email'])->latest();
+            $query = LiveSessionRequest::with(['seeker:id,name,email', 'clergyUser:id,name,email'])->latest();
 
-            if ($request->filled('status') && in_array($request->status, ['pending', 'scheduled', 'completed'])) {
+            if ($request->filled('status')) {
                 $query->where('status', $request->status);
             }
 
             return DataTables::of($query)
                 ->addIndexColumn()
                 ->addColumn('seeker_name', fn($row) => $row->seeker?->name ?? '-')
-                ->addColumn('clergy_name', fn($row) => $row->clergy?->name ?? '-')
+                ->addColumn('clergy_name', fn($row) => $row->clergyUser?->name ?? '-')
                 ->addColumn('message_preview', fn($row) => \Str::limit($row->message, 50))
                 ->addColumn('scheduled_time', fn($row) => $row->scheduled_time?->format('M j, Y g:i A') ?? '-')
                 ->addColumn('action', function ($row) {
@@ -41,7 +41,7 @@ class LiveSessionRequestController extends Controller
 
     public function show(int $id)
     {
-        $data = LiveSessionRequest::with(['seeker', 'clergy'])->findOrFail($id);
+        $data = LiveSessionRequest::with(['seeker', 'clergyUser'])->findOrFail($id);
         $clergyList = User::where('role', 'clergy')->whereHas('clergy', fn($q) => $q->where('is_live_session', true))->get(['id', 'name', 'email']);
         return view('backend.layouts.live_session_requests.show', compact('data', 'clergyList'));
     }
@@ -53,7 +53,15 @@ class LiveSessionRequestController extends Controller
         ])->validate();
 
         $liveSessionRequest = LiveSessionRequest::findOrFail($id);
-        $liveSessionRequest->update(['clergy_id' => $validated['clergy_id']]);
+        $clergyUser = User::where('role', 'clergy')->with('clergy')->findOrFail($validated['clergy_id']);
+        if (! $clergyUser->clergy) {
+            return redirect()->back()->with('error', 'Selected user is not a clergy profile.');
+        }
+
+        $liveSessionRequest->update([
+            'clergy_id' => $clergyUser->clergy->id,
+            'clergy_user_id' => $clergyUser->id,
+        ]);
 
         return redirect()->route('admin.live_session_requests.show', $id)->with('success', 'Clergy assigned successfully.');
     }

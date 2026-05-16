@@ -10,6 +10,13 @@
             </a>
         </div>
 
+        @if ($data->clergy && ($data->clergy->registration_status ?? '') === 'pending_admin')
+            <div class="alert alert-warning d-flex flex-wrap justify-content-between align-items-center gap-2">
+                <span>This clergy account is waiting for credential verification.</span>
+                <a href="{{ route('admin.clergy_verification.show', $data->clergy) }}" class="btn btn-sm btn-dark">Review registration</a>
+            </div>
+        @endif
+
         <div class="row">
             <div class="col-lg-4 mb-3">
                 <div class="card bg-white border-0 rounded-3 h-100">
@@ -59,6 +66,21 @@
                                     <strong>Religion:</strong>
                                     <p class="mb-0">{{ $data->clergy->religion }}</p>
                                 </div>
+                                <div class="col-md-4">
+                                    <strong>Denomination:</strong>
+                                    <p class="mb-0">{{ $data->clergy->denomination ?? '—' }}</p>
+                                </div>
+                                <div class="col-md-4">
+                                    <strong>Registration status:</strong>
+                                    <p class="mb-0">
+                                        @php $rs = $data->clergy->registration_status ?? 'approved'; @endphp
+                                        <span class="badge bg-{{ $rs === 'approved' ? 'success' : ($rs === 'pending_admin' ? 'warning text-dark' : 'danger') }}">
+                                            {{ str_replace('_', ' ', $rs) }}
+                                        </span>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
                                 <div class="col-md-4">
                                     <strong>Preferred Languages:</strong>
                                     <p class="mb-0">
@@ -126,6 +148,31 @@
                                 </div>
                             </div>
 
+                            @if (! empty($data->clergy->registration_rejection_reason))
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <strong>Registration rejection reason:</strong>
+                                        <p class="mb-0 text-danger">{{ $data->clergy->registration_rejection_reason }}</p>
+                                    </div>
+                                </div>
+                            @endif
+
+                            @php $credDocs = $data->clergy->credential_documents; @endphp
+                            @if (is_array($credDocs) && count($credDocs) > 0)
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <strong>Credential documents:</strong>
+                                        <ul class="mb-0 mt-1">
+                                            @foreach ($credDocs as $idx => $docUrl)
+                                                <li>
+                                                    <a href="{{ str_starts_with($docUrl, 'http') ? $docUrl : asset($docUrl) }}" target="_blank" rel="noopener">Document {{ $idx + 1 }}</a>
+                                                </li>
+                                            @endforeach
+                                        </ul>
+                                    </div>
+                                </div>
+                            @endif
+
                             <div class="row mb-3">
                                 <div class="col-md-12">
                                     <strong>Flags:</strong>
@@ -133,6 +180,7 @@
                                         <span class="badge bg-{{ $data->clergy->is_verified ? 'success' : 'secondary' }}">Verified</span>
                                         <span class="badge bg-{{ $data->clergy->is_live_session ? 'success' : 'secondary' }}">Live Session</span>
                                         <span class="badge bg-{{ $data->clergy->is_prayer_request ? 'success' : 'secondary' }}">Prayer Request</span>
+                                        <span class="badge bg-{{ $data->clergy->is_available_for_live ? 'success' : 'secondary' }}">Live queue on</span>
                                     </p>
                                 </div>
                             </div>

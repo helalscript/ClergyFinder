@@ -66,6 +66,7 @@ class UserManagementController extends Controller
 
         $validatedClergy = $request->validate([
             'religion' => 'nullable|string|max:255',
+            'denomination' => 'nullable|string|max:255',
             'preferred_language' => 'nullable|string',
             'address' => 'nullable|string|max:255',
             'city' => 'nullable|string|max:255',
@@ -80,6 +81,7 @@ class UserManagementController extends Controller
             'is_verified' => 'nullable|boolean',
             'is_live_session' => 'nullable|boolean',
             'is_prayer_request' => 'nullable|boolean',
+            'registration_status' => 'nullable|in:pending_admin,approved,rejected',
         ]);
 
         try {
@@ -99,6 +101,7 @@ class UserManagementController extends Controller
             $clergyPayload = [
                 'user_id' => $user->id,
                 'religion' => $validatedClergy['religion'] ?? null,
+                'denomination' => $validatedClergy['denomination'] ?? $request->input('denomination'),
                 'preferred_language' => !empty($validatedClergy['preferred_language']) ? array_values(array_filter(array_map('trim', explode(',', $validatedClergy['preferred_language'])))) : null,
                 'address' => $validatedClergy['address'] ?? null,
                 'city' => $validatedClergy['city'] ?? null,
@@ -113,6 +116,7 @@ class UserManagementController extends Controller
                 'is_verified' => (bool) ($request->input('is_verified', false)),
                 'is_live_session' => (bool) ($request->input('is_live_session', true)),
                 'is_prayer_request' => (bool) ($request->input('is_prayer_request', true)),
+                'registration_status' => 'approved',
                 'status' => 'active',
             ];
 
@@ -154,6 +158,7 @@ class UserManagementController extends Controller
 
         $validatedClergy = $request->validate([
             'religion' => 'nullable|string|max:255',
+            'denomination' => 'nullable|string|max:255',
             'preferred_language' => 'nullable|string',
             'address' => 'nullable|string|max:255',
             'city' => 'nullable|string|max:255',
@@ -168,6 +173,7 @@ class UserManagementController extends Controller
             'is_verified' => 'nullable|boolean',
             'is_live_session' => 'nullable|boolean',
             'is_prayer_request' => 'nullable|boolean',
+            'registration_status' => 'nullable|in:pending_admin,approved,rejected',
         ]);
 
         try {
@@ -194,6 +200,7 @@ class UserManagementController extends Controller
 
             $clergyPayload = [
                 'religion' => $validatedClergy['religion'] ?? null,
+                'denomination' => $validatedClergy['denomination'] ?? $request->input('denomination'),
                 'preferred_language' => !empty($validatedClergy['preferred_language']) ? array_values(array_filter(array_map('trim', explode(',', $validatedClergy['preferred_language'])))) : null,
                 'address' => $validatedClergy['address'] ?? null,
                 'city' => $validatedClergy['city'] ?? null,
@@ -208,6 +215,7 @@ class UserManagementController extends Controller
                 'is_verified' => (bool) ($request->input('is_verified', false)),
                 'is_live_session' => (bool) ($request->input('is_live_session', true)),
                 'is_prayer_request' => (bool) ($request->input('is_prayer_request', true)),
+                'registration_status' => $request->input('registration_status', 'approved'),
             ];
 
             Clergy::updateOrCreate(['user_id' => $user->id], $clergyPayload);

@@ -13,6 +13,8 @@ use App\Http\Controllers\API\V1\CMS\OnboardingController;
 use App\Http\Controllers\API\V1\CMS\FaqPageController as APIFaqPageController;
 use App\Http\Controllers\API\V1\QuestionController;
 use App\Http\Controllers\API\V1\DashboardController;
+use App\Http\Controllers\API\V1\Admin\ClergyVerificationController;
+use App\Http\Controllers\API\V1\Clergy\ClergyProfileController;
 use App\Http\Controllers\API\V1\Clergy\LiveSessionRequestController as ClergyLiveSessionRequestController;
 use App\Http\Controllers\API\V1\Clergy\PrayerRequestController as ClergyPrayerRequestController;
 use App\Http\Controllers\API\V1\Clergy\LiveSessionVideoController;
@@ -47,7 +49,16 @@ Route::group(['middleware' => 'auth:api'], function ($router) {
     Route::get('/me', [UserController::class, 'me']);
     Route::post('/update-profile', [UserController::class, 'updateProfile']);
     Route::post('/update-password', [UserController::class, 'changePassword']);
-    Route::post('/clergy-profile-update', [UserController::class, 'ClergyProfileUpdate']);
+    // @deprecated use POST /api/clergy/profile
+    Route::post('/clergy-profile-update', [ClergyProfileController::class, 'update']);
+});
+
+// Clergy profile, registration status, re-apply (no admin approval required)
+Route::group(['middleware' => ['auth:api', 'check_is_clergy'], 'prefix' => 'clergy'], function ($router) {
+    Route::get('/profile', [ClergyProfileController::class, 'show']);
+    Route::post('/profile', [ClergyProfileController::class, 'update']);
+    Route::get('/registration-status', [ClergyProfileController::class, 'registrationStatus']);
+    Route::post('/reapply-registration', [ClergyProfileController::class, 'reapply']);
 });
 
 // only for user
@@ -62,7 +73,7 @@ Route::group(['middleware' => ['auth:api', 'check_is_user']], function ($router)
     Route::delete('/my-notifications-delete-all', [NotificationController::class, 'deleteAll']);
 });
 
-// Seeker: Prayer requests & Live session requests
+// Seeker: Prayer requests & Live session queue
 Route::group(['middleware' => ['auth:api', 'check_is_seeker'], 'prefix' => 'seeker'], function ($router) {
     Route::get('/prayer-requests', [SeekerPrayerRequestController::class, 'index']);
     Route::get('/prayer-requests/{id}', [SeekerPrayerRequestController::class, 'show']);
@@ -70,23 +81,35 @@ Route::group(['middleware' => ['auth:api', 'check_is_seeker'], 'prefix' => 'seek
 
     Route::get('/live-session-requests', [SeekerLiveSessionRequestController::class, 'index']);
     Route::get('/live-session-requests/{id}', [SeekerLiveSessionRequestController::class, 'show']);
-    Route::post('/live-session-requests', [SeekerLiveSessionRequestController::class, 'store']);
+    Route::post('/live-session-queue/join', [SeekerLiveSessionRequestController::class, 'joinQueue']);
+    Route::post('/live-session-queue/{id}/heartbeat', [SeekerLiveSessionRequestController::class, 'heartbeat']);
+    Route::post('/live-session-queue/{id}/leave', [SeekerLiveSessionRequestController::class, 'leaveQueue']);
+    Route::post('/live-session-queue/{id}/confirm-ready', [SeekerLiveSessionRequestController::class, 'confirmReady']);
 });
 
-// Clergy: Prayer requests & Live session requests
-Route::group(['middleware' => ['auth:api', 'check_is_clergy'], 'prefix' => 'clergy'], function ($router) {
+// Clergy: Prayer requests, live queue, video (requires admin-approved clergy profile)
+Route::group(['middleware' => ['auth:api', 'check_is_clergy', 'clergy_approved_app'], 'prefix' => 'clergy'], function ($router) {
     Route::get('/prayer-requests', [ClergyPrayerRequestController::class, 'index']);
     Route::get('/prayer-requests/{id}', [ClergyPrayerRequestController::class, 'show']);
-    Route::post('/prayer-requests/reply/{id}', [ClergyPrayerRequestController::class, 'reply']);
+    Route::post('/prayer-requests/{id}/accept', [ClergyPrayerRequestController::class, 'accept']);
+    Route::post('/prayer-requests/{id}/decline', [ClergyPrayerRequestController::class, 'decline']);
+    Route::post('/prayer-requests/{id}/close', [ClergyPrayerRequestController::class, 'close']);
 
     Route::get('/live-session-requests', [ClergyLiveSessionRequestController::class, 'index']);
     Route::get('/live-session-requests/{id}', [ClergyLiveSessionRequestController::class, 'show']);
-    Route::post('/live-session-requests/schedule/{id}', [ClergyLiveSessionRequestController::class, 'schedule']);
+    Route::post('/live-availability', [ClergyLiveSessionRequestController::class, 'updateLiveAvailability']);
+    Route::post('/live-session-queue/notify-next', [ClergyLiveSessionRequestController::class, 'notifyNextSeeker']);
 
-    // Video session start/complete from chat.
     Route::post('/live-session-requests/{id}/video/start', [LiveSessionVideoController::class, 'start']);
     Route::post('/live-session-requests/{id}/video/complete', [LiveSessionVideoController::class, 'complete']);
 });
+
+// // Admin API (JWT user role admin): clergy registration review
+// Route::group(['middleware' => ['auth:api', 'check_is_admin'], 'prefix' => 'admin'], function ($router) {
+//     Route::get('/clergy-registrations/pending', [ClergyVerificationController::class, 'pending']);
+//     Route::post('/clergy-registrations/{id}/approve', [ClergyVerificationController::class, 'approve']);
+//     Route::post('/clergy-registrations/{id}/reject', [ClergyVerificationController::class, 'reject']);
+// });
 
 // Chat system
 Route::group(['middleware' => ['auth:api']], function ($router) {
