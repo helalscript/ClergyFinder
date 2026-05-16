@@ -21,8 +21,10 @@ class ClergyController extends Controller
             $search = $request->has('search') ? $request->search : null;
 
             $per_page = $request->has('per_page') ? $request->per_page : 25;
-            $clergy = Clergy::with('user:id,name,avatar')
-                ->select('id', 'user_id', 'religion', 'bio', 'address', 'city', 'preferred_language', 'available_at', 'specialities', 'is_verified', 'is_live_session', 'is_prayer_request', 'status')
+            $clergy = Clergy::query()
+                ->publicDirectory()
+                ->with('user:id,name,avatar')
+                ->select('id', 'user_id', 'religion', 'denomination', 'bio', 'address', 'city', 'preferred_language', 'available_at', 'specialities', 'is_verified', 'is_live_session', 'is_prayer_request', 'is_available_for_live', 'status', 'registration_status')
                 ->when($search, function ($query) use ($search) {
                     $query->where('religion', 'like', '%'.$search.'%')
                         ->orWhere('bio', 'like', '%'.$search.'%')
@@ -58,8 +60,10 @@ class ClergyController extends Controller
     public function show(string $id)
     {
         try {
-            $clergy = Clergy::with('user:id,name,avatar')
-                ->select('id', 'user_id', 'religion', 'bio', 'address', 'city', 'preferred_language', 'available_at', 'specialities', 'is_verified', 'is_live_session', 'is_prayer_request', 'status')
+            $clergy = Clergy::query()
+                ->publicDirectory()
+                ->with('user:id,name,avatar')
+                ->select('id', 'user_id', 'religion', 'denomination', 'bio', 'address', 'city', 'preferred_language', 'available_at', 'specialities', 'is_verified', 'is_live_session', 'is_prayer_request', 'is_available_for_live', 'status', 'registration_status')
                 ->find($id);
             if (! $clergy) {
                 return Helper::jsonResponse(false, 'Clergy not found', 404);
