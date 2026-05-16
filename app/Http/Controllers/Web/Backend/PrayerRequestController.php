@@ -14,16 +14,23 @@ class PrayerRequestController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $query = PrayerRequest::with(['seeker:id,name,email', 'clergy:id,name,email'])->latest();
+            $query = PrayerRequest::with(['seeker:id,name,email', 'clergyUser:id,name,email'])->latest();
 
-            if ($request->filled('status') && in_array($request->status, ['pending', 'replied'])) {
-                $query->where('status', $request->status);
+            if ($request->filled('status') && in_array($request->status, ['pending_clergy', 'active', 'declined', 'closed', 'pending', 'replied'], true)) {
+                $status = $request->status;
+                if ($status === 'pending') {
+                    $status = 'pending_clergy';
+                }
+                if ($status === 'replied') {
+                    $status = 'active';
+                }
+                $query->where('status', $status);
             }
 
             return DataTables::of($query)
                 ->addIndexColumn()
                 ->addColumn('seeker_name', fn($row) => $row->seeker?->name ?? '-')
-                ->addColumn('clergy_name', fn($row) => $row->clergy?->name ?? '-')
+                ->addColumn('clergy_name', fn($row) => $row->clergyUser?->name ?? '-')
                 ->addColumn('message_preview', fn($row) => \Str::limit($row->message, 50))
                 ->addColumn('action', function ($row) {
                     return '<div class="action-wrapper">
@@ -40,7 +47,7 @@ class PrayerRequestController extends Controller
 
     public function show(int $id)
     {
-        $data = PrayerRequest::with(['seeker', 'clergy'])->findOrFail($id);
+        $data = PrayerRequest::with(['seeker', 'clergyUser'])->findOrFail($id);
         $clergyList = User::where('role', 'clergy')->whereHas('clergy', fn($q) => $q->where('is_prayer_request', true))->get(['id', 'name', 'email']);
         return view('backend.layouts.prayer_requests.show', compact('data', 'clergyList'));
     }
@@ -52,7 +59,15 @@ class PrayerRequestController extends Controller
         ])->validate();
 
         $prayerRequest = PrayerRequest::findOrFail($id);
-        $prayerRequest->update(['clergy_id' => $validated['clergy_id']]);
+        $clergyUser = User::where('role', 'clergy')->with('clergy')->findOrFail($validated['clergy_id']);
+        if (! $clergyUser->clergy) {
+            return redirect()->back()->with('error', 'Selected user is not a clergy profile.');
+        }
+
+        $prayerRequest->update([
+            'clergy_id' => $clergyUser->clergy->id,
+            'clergy_user_id' => $clergyUser->id,
+        ]);
 
         return redirect()->route('admin.prayer_requests.show', $id)->with('success', 'Clergy assigned successfully.');
     }
