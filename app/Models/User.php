@@ -132,11 +132,11 @@ class User extends Authenticatable implements JWTSubject
 
     public function prayerRequestsAsClergy()
     {
-        return $this->hasMany(PrayerRequest::class, 'clergy_id');
+        return $this->hasMany(PrayerRequest::class, 'clergy_user_id');
     }
 
     public function liveSessionRequestsAsClergy()
     {
-        return $this->hasMany(LiveSessionRequest::class, 'clergy_id');
+        return $this->hasMany(LiveSessionRequest::class, 'clergy_user_id');
     }
 }
