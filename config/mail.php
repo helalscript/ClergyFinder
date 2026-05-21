@@ -94,6 +94,10 @@ return [
                 'postmark',
             ],
         ],
+        
+        'brevo' => [
+            'transport' => 'brevo',
+        ],
 
     ],
 
