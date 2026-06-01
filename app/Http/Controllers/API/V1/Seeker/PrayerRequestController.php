@@ -20,7 +20,7 @@ class PrayerRequestController extends Controller
     public function index(): JsonResponse
     {
         $requests = PrayerRequest::where('seeker_id', auth('api')->id())
-            ->with(['clergyUser:id,name,email'])
+            ->with(['clergyUser:id,name,email', 'chatRoom:id,prayer_request_id'])
             ->latest()
             ->paginate(15);
 
@@ -29,7 +29,7 @@ class PrayerRequestController extends Controller
 
     public function show(int $id): JsonResponse
     {
-        $request = PrayerRequest::where('seeker_id', auth('api')->id())->with(['clergyUser:id,name,email'])->find($id);
+        $request = PrayerRequest::where('seeker_id', auth('api')->id())->with(['clergyUser:id,name,email', 'chatRoom:id,prayer_request_id'])->find($id);
 
         if (! $request) {
             return Helper::jsonResponse(false, 'Prayer request not found', 404);
