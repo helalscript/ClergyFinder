@@ -25,3 +25,8 @@ window.Echo = new Echo({
 //         console.log("New Notification:", notification);
 //     });
 
+window.Echo.private('App.Models.User.' + 2)
+    .notification((notification) => {
+        console.log("New Notification:", notification);
+    });
+
