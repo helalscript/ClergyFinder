@@ -6,21 +6,22 @@ use App\Http\Controllers\API\Auth\RegisterController;
 use App\Http\Controllers\API\Auth\ResetPasswordController;
 use App\Http\Controllers\API\Auth\SocialLoginController;
 use App\Http\Controllers\API\Auth\UserController;
-use App\Http\Controllers\API\V1\CMS\HomePageController;
-use App\Http\Controllers\API\V1\CMS\HowItWorkPageController as APIHowItWorkPageController;
-use App\Http\Controllers\API\V1\CMS\FindClergyPageController as APIFindClergyPageController;
-use App\Http\Controllers\API\V1\CMS\OnboardingController;
-use App\Http\Controllers\API\V1\CMS\FaqPageController as APIFaqPageController;
-use App\Http\Controllers\API\V1\QuestionController;
-use App\Http\Controllers\API\V1\DashboardController;
 use App\Http\Controllers\API\V1\Admin\ClergyVerificationController;
+use App\Http\Controllers\API\V1\Chat\ChatController;
 use App\Http\Controllers\API\V1\Clergy\ClergyProfileController;
 use App\Http\Controllers\API\V1\Clergy\LiveSessionRequestController as ClergyLiveSessionRequestController;
-use App\Http\Controllers\API\V1\Clergy\PrayerRequestController as ClergyPrayerRequestController;
 use App\Http\Controllers\API\V1\Clergy\LiveSessionVideoController;
+use App\Http\Controllers\API\V1\Clergy\PrayerRequestController as ClergyPrayerRequestController;
+use App\Http\Controllers\API\V1\CMS\FaqPageController as APIFaqPageController;
+use App\Http\Controllers\API\V1\CMS\FindClergyPageController as APIFindClergyPageController;
+use App\Http\Controllers\API\V1\CMS\HomePageController;
+use App\Http\Controllers\API\V1\CMS\HowItWorkPageController as APIHowItWorkPageController;
+use App\Http\Controllers\API\V1\CMS\OnboardingController;
+use App\Http\Controllers\API\V1\DashboardController;
+use App\Http\Controllers\API\V1\LiveSessionAgoraController;
+use App\Http\Controllers\API\V1\QuestionController;
 use App\Http\Controllers\API\V1\Seeker\LiveSessionRequestController as SeekerLiveSessionRequestController;
 use App\Http\Controllers\API\V1\Seeker\PrayerRequestController as SeekerPrayerRequestController;
-use App\Http\Controllers\API\V1\Chat\ChatController;
 use App\Http\Controllers\API\V1\User\ClergyController;
 use App\Http\Controllers\API\V1\User\Faqs\UserFaqController;
 use App\Http\Controllers\API\V1\User\NewsletterController;
@@ -113,7 +114,9 @@ Route::group(['middleware' => ['auth:api', 'check_is_clergy', 'clergy_approved_a
 
 // Chat system
 Route::group(['middleware' => ['auth:api']], function ($router) {
-    Route::prefix('chats')->group(function () use ($router) {
+    Route::get('/live-session-requests/{id}/agora/join', [LiveSessionAgoraController::class, 'join']);
+
+    Route::prefix('chats')->group(function () {
         Route::get('/', [ChatController::class, 'rooms']);
         Route::get('/{room}', [ChatController::class, 'show']);
         Route::get('/messages/{room}', [ChatController::class, 'messages']);
@@ -132,12 +135,11 @@ Route::get('/faqs-categories/{id}', [UserFaqController::class, 'showCategory']);
 Route::post('/newsletter/subscribe', [NewsletterController::class, 'subscribe']);
 // social link
 Route::get('/social-links', [HomePageController::class, 'getSocialLinks']);
-// route for clergy 
+// route for clergy
 Route::apiResource('clergy', ClergyController::class)->only(['index', 'show']);
 
 // witout auth
 Route::post('/contact-support-message/sent', [UserContactSupportController::class, 'store']);
-
 
 // --------- cms part --------------
 // Route::get('/social-link', [HomePageController::class, 'getSocialLinks']);
@@ -172,7 +174,7 @@ Route::group(['prefix' => 'cms/find-clergy-page'], function () {
 Route::group(['prefix' => 'cms/faq-page'], function () {
     Route::get('/hero-section', [APIFaqPageController::class, 'getHeroSection']);
 });
- 
+
 // route for how it work page
 Route::group(['prefix' => 'cms/how-it-work-page'], function () {
     Route::get('/hero-section', [APIHowItWorkPageController::class, 'getHeroSection']);
@@ -180,6 +182,3 @@ Route::group(['prefix' => 'cms/how-it-work-page'], function () {
     Route::get('/our-values-section', [APIHowItWorkPageController::class, 'getOurValuesSection']);
     Route::get('/spiritual-journey-section', [APIHowItWorkPageController::class, 'getSpiritualJourneySection']);
 });
-
-
-
