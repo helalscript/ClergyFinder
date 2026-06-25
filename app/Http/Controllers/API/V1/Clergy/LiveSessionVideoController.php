@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Log;
 
 class LiveSessionVideoController extends Controller
 {
-    public function start(int $id, ChatRoomService $chatRoomService): JsonResponse
+    public function start($id, ChatRoomService $chatRoomService): JsonResponse
     {
         $user = auth('api')->user();
 
@@ -81,7 +81,7 @@ class LiveSessionVideoController extends Controller
         ]);
     }
 
-    public function complete(int $id, ChatRoomService $chatRoomService, LiveSessionQueueService $queueService): JsonResponse
+    public function complete($id, ChatRoomService $chatRoomService, LiveSessionQueueService $queueService): JsonResponse
     {
         $user = auth('api')->user();
 

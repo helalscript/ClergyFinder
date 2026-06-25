@@ -19,7 +19,7 @@ class LiveSessionQueueService
 {
     public const HEARTBEAT_TIMEOUT_SECONDS = 45;
 
-    public const CONFIRM_READY_SECONDS = 120;
+    public const CONFIRM_READY_SECONDS = 600;
 
     public static function blockingStatuses(): array
     {
