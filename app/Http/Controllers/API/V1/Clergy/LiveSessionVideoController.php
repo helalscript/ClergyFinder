@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\ChatRoom;
 use App\Models\LiveSessionRequest;
 use App\Notifications\Chat\LiveSessionClergyStartedVideoInApp;
+use App\Services\AgoraService;
 use App\Services\Chat\ChatRoomService;
 use App\Services\LiveSessionQueueService;
 use Carbon\Carbon;
@@ -15,7 +16,7 @@ use Illuminate\Support\Facades\Log;
 
 class LiveSessionVideoController extends Controller
 {
-    public function start($id, ChatRoomService $chatRoomService): JsonResponse
+    public function start($id, ChatRoomService $chatRoomService, AgoraService $agoraService): JsonResponse
     {
         $user = auth('api')->user();
 
@@ -53,8 +54,28 @@ class LiveSessionVideoController extends Controller
         ]);
 
         $freshRequest = $liveSessionRequest->fresh();
-        if ($freshRequest->seeker) {
-            $freshRequest->seeker->notify(new LiveSessionClergyStartedVideoInApp($freshRequest));
+        $clergyAgoraJoin = null;
+        $seekerAgoraJoin = null;
+
+        try {
+            $agoraService->ensureChannelName($freshRequest);
+            $freshRequest = $freshRequest->fresh();
+            $clergyAgoraJoin = $agoraService->buildJoinCredentials($freshRequest, $user);
+
+            if ($freshRequest->seeker) {
+                $seekerAgoraJoin = $agoraService->buildJoinCredentials($freshRequest, $freshRequest->seeker);
+                $freshRequest->seeker->notify(new LiveSessionClergyStartedVideoInApp($freshRequest, $seekerAgoraJoin));
+            }
+        } catch (\RuntimeException $e) {
+            if ($e->getMessage() !== 'agora_not_configured') {
+                throw $e;
+            }
+
+            Log::warning('LiveSessionVideoController::start Agora not configured, video started without tokens.');
+
+            if ($freshRequest->seeker) {
+                $freshRequest->seeker->notify(new LiveSessionClergyStartedVideoInApp($freshRequest));
+            }
         }
 
         $room = ChatRoom::where('live_session_request_id', $liveSessionRequest->id)->first();
@@ -73,12 +94,18 @@ class LiveSessionVideoController extends Controller
             }
         }
 
-        return Helper::jsonResponse(true, 'Video started successfully', 200, [
+        $response = [
             'live_session_request_id' => $liveSessionRequest->id,
             'chat_room_id' => $room?->id,
             'agora_channel' => $liveSessionRequest->fresh()->agora_channel,
             'video_status' => 'started',
-        ]);
+        ];
+
+        if ($clergyAgoraJoin) {
+            $response['agora'] = $clergyAgoraJoin;
+        }
+
+        return Helper::jsonResponse(true, 'Video started successfully', 200, $response);
     }
 
     public function complete($id, ChatRoomService $chatRoomService, LiveSessionQueueService $queueService): JsonResponse

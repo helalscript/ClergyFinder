@@ -9,15 +9,15 @@ use App\Models\User;
 use App\Notifications\Chat\LiveSessionConfirmTimeoutInApp;
 use App\Notifications\Chat\LiveSessionQueueAbandonedInApp;
 use App\Notifications\Chat\LiveSessionSeekerConfirmedReadyInApp;
-use App\Notifications\Chat\LiveSessionYourTurnInApp;
 use App\Notifications\Chat\LiveSessionSeekerJoinedQueueInApp;
+use App\Notifications\Chat\LiveSessionYourTurnInApp;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class LiveSessionQueueService
 {
-    public const HEARTBEAT_TIMEOUT_SECONDS = 45;
+    public const HEARTBEAT_TIMEOUT_SECONDS = 120;
 
     public const CONFIRM_READY_SECONDS = 600;
 
