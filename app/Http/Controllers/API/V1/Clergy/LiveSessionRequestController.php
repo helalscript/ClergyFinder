@@ -123,4 +123,34 @@ class LiveSessionRequestController extends Controller
             return Helper::jsonErrorResponse($msg, $code);
         }
     }
+
+    public function reject(int $id, \Illuminate\Http\Request $request, LiveSessionQueueService $queueService): JsonResponse
+    {
+        $user = auth('api')->user();
+        if (! $user->clergy || ! $user->clergy->is_live_session) {
+            return Helper::jsonErrorResponse('You are not allowed to manage live sessions', 403);
+        }
+
+        $liveSessionRequest = LiveSessionRequest::where('clergy_id', $user->clergy->id)->find($id);
+        if (! $liveSessionRequest) {
+            return Helper::jsonResponse(false, 'Live session record not found', 404);
+        }
+
+        if (! in_array($liveSessionRequest->status, ['queued', 'awaiting_confirm', 'ready', 'active'], true)) {
+            return Helper::jsonErrorResponse('This live session cannot be rejected in its current status.', 409);
+        }
+
+        $request->validate([
+            'reason' => 'nullable|string|max:1000',
+        ]);
+
+        $reason = $request->input('reason', 'Session cancelled by clergy.');
+
+        $queueService->rejectSessionByClergy($liveSessionRequest, $reason);
+
+        return Helper::jsonResponse(true, 'Live session request rejected/removed successfully.', 200, [
+            'live_session_request_id' => $liveSessionRequest->id,
+            'status' => $liveSessionRequest->fresh()->status,
+        ]);
+    }
 }

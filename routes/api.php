@@ -100,6 +100,7 @@ Route::group(['middleware' => ['auth:api', 'check_is_clergy', 'clergy_approved_a
     Route::get('/live-session-requests/{id}', [ClergyLiveSessionRequestController::class, 'show']);
     Route::post('/live-availability', [ClergyLiveSessionRequestController::class, 'updateLiveAvailability']);
     Route::post('/live-session-queue/notify-next', [ClergyLiveSessionRequestController::class, 'notifyNextSeeker']);
+    Route::post('/live-session-requests/{id}/reject', [ClergyLiveSessionRequestController::class, 'reject']);
 
     Route::post('/live-session-requests/{id}/video/start', [LiveSessionVideoController::class, 'start']);
     Route::post('/live-session-requests/{id}/video/complete', [LiveSessionVideoController::class, 'complete']);

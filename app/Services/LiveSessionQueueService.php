@@ -324,6 +324,30 @@ class LiveSessionQueueService
         $this->maybePromoteNextInQueue($req->clergy_id);
     }
 
+    public function rejectSessionByClergy(LiveSessionRequest $req, string $reason): void
+    {
+        $clergyId = $req->clergy_id;
+        $wasBlockingSlot = in_array($req->status, ['awaiting_confirm', 'ready', 'active'], true);
+
+        $req->update([
+            'status' => 'cancelled',
+            'rejection_reason' => $reason,
+            'confirmation_deadline_at' => null,
+        ]);
+
+        if ($req->video_status === 'started') {
+            $req->update(['video_status' => 'completed']);
+        }
+
+        if ($req->seeker) {
+            $req->seeker->notify(new \App\Notifications\Chat\LiveSessionRejectedByClergyInApp($req, $reason));
+        }
+
+        if ($clergyId && $wasBlockingSlot) {
+            $this->maybePromoteNextInQueue($clergyId);
+        }
+    }
+
     /**
      * Clergy action: remind seeker awaiting confirm, or promote first queued seeker.
      *
