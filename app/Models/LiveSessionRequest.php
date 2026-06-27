@@ -23,6 +23,7 @@ class LiveSessionRequest extends Model
         'confirmation_deadline_at',
         'ready_confirmed_at',
         'agora_channel',
+        'rejection_reason',
     ];
 
     protected $casts = [

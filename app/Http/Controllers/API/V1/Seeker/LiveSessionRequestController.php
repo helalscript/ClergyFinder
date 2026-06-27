@@ -43,7 +43,13 @@ class LiveSessionRequestController extends Controller
                 return Helper::jsonResponse(false, 'Live session record not found', 404);
             }
 
-            return Helper::jsonResponse(true, 'Live session record fetched successfully', 200, $request);
+            $queueService = app(\App\Services\LiveSessionQueueService::class);
+            $position = $request->status === 'queued' ? $queueService->queuePositionFor($request) : null;
+            
+            $data = $request->toArray();
+            $data['queue_position'] = $position;
+
+            return Helper::jsonResponse(true, 'Live session record fetched successfully', 200, $data);
         } catch (Exception $e) {
             Log::error('LiveSessionRequestController::show '.$e->getMessage());
 
